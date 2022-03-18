@@ -7,22 +7,6 @@ void free_document(ErlNifEnv* __attribute__((unused))env, void* obj)
   xmlFreeDoc(document->doc);
 }
 
-void
-Exogiri_error_array_pusher(void *ctx, xmlErrorPtr error)
-{
-  Errors* errors = (Errors*)ctx;
-  ERL_NIF_TERM new_error;
-  ERL_NIF_TERM existing_errors;
-  existing_errors = errors->errors;
-  new_error = enif_make_string(errors->env, error->message, ERL_NIF_LATIN1);
-  errors->errors = enif_make_list_cell(
-    errors->env,
-    new_error,
-    existing_errors
-  );
-}
-
-
 ERL_NIF_TERM priv_from_string(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 {
   ErlNifBinary nb;
@@ -96,27 +80,25 @@ ERL_NIF_TERM priv_from_string(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[
 }
 
 ERL_NIF_TERM priv_get_root(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[]) {
-  Document **document = enif_alloc(sizeof(Document *));
+  Document *document;
   xmlNodePtr np;
+  xmlDocPtr doc_copy;
   ERL_NIF_TERM result;
 
   if(argc != 1)
   {
     return enif_make_badarg(env);
   }
-  if (!enif_get_resource(env, argv[0],EXD_RES_TYPE,(void **)document)) {
+  if (!enif_get_resource(env, argv[0],EXD_RES_TYPE,(void **)&document)) {
     return enif_make_badarg(env);
   }
-
-  np = xmlDocGetRootElement((*document)->doc);
+  doc_copy = xmlCopyDoc(document->doc,1);
+  np = xmlDocGetRootElement(doc_copy);
   Node* nodeRes = (Node *)enif_alloc_resource(EXN_RES_TYPE, sizeof(Node));
-  enif_keep_resource(*document);
   nodeRes->node = np;
-  nodeRes->doc = document;
+  nodeRes->doc = doc_copy;
   result = enif_make_resource(env, nodeRes);
-  enif_keep_resource(*document);
   enif_release_resource(nodeRes);
-  enif_free(document);
   return result;
 }
 

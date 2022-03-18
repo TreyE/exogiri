@@ -4,8 +4,7 @@
 
 void free_node(ErlNifEnv* __attribute__((unused))env, void* obj) {
   Node* node = (Node*)obj;
-  enif_release_resource(*(node->doc));
-  xmlFreeNode(node->node);
+  xmlFreeDoc(node->doc);
 }
 
 ERL_NIF_TERM priv_node_local_name(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[]) {

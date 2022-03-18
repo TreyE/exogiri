@@ -15,4 +15,8 @@ defmodule Exogiri.Xml.Node do
       a -> a
     end
   end
+
+  def xpath(%__MODULE__{} = a, xpath, nses) do
+    Exogiri.Xml.Internal.priv_node_run_xpath_with_ns(a.ref, xpath, nses)
+  end
 end
