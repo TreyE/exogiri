@@ -1,5 +1,6 @@
 #include <string.h>
 #include "exogiri.h"
+#include "node.h"
 
 void free_document(ErlNifEnv* __attribute__((unused))env, void* obj)
 {
@@ -82,8 +83,6 @@ ERL_NIF_TERM priv_from_string(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[
 ERL_NIF_TERM priv_get_root(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[]) {
   Document *document;
   xmlNodePtr np;
-  xmlDocPtr doc_copy;
-  ERL_NIF_TERM result;
 
   if(argc != 1)
   {
@@ -92,14 +91,8 @@ ERL_NIF_TERM priv_get_root(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[]) 
   if (!enif_get_resource(env, argv[0],EXD_RES_TYPE,(void **)&document)) {
     return enif_make_badarg(env);
   }
-  doc_copy = xmlCopyDoc(document->doc,1);
-  np = xmlDocGetRootElement(doc_copy);
-  Node* nodeRes = (Node *)enif_alloc_resource(EXN_RES_TYPE, sizeof(Node));
-  nodeRes->node = np;
-  nodeRes->doc = doc_copy;
-  result = enif_make_resource(env, nodeRes);
-  enif_release_resource(nodeRes);
-  return result;
+  np = xmlDocGetRootElement(document->doc);
+  return create_node_term(env, document, np);
 }
 
 ERL_NIF_TERM priv_to_xml(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[]) {

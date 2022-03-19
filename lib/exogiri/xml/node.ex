@@ -17,6 +17,9 @@ defmodule Exogiri.Xml.Node do
   end
 
   def xpath(%__MODULE__{} = a, xpath, nses) do
-    Exogiri.Xml.Internal.priv_node_run_xpath_with_ns(a.ref, xpath, nses)
+    case Exogiri.Xml.Internal.priv_node_run_xpath_with_ns(a.ref, xpath, nses) do
+      {:error, a} -> {:error, a}
+      {:ok, list} -> {:ok, Enum.map(Enum.reverse(list), fn(n) -> %Exogiri.Xml.Node{ref: n} end)}
+    end
   end
 end

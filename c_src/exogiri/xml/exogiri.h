@@ -12,14 +12,13 @@ extern ERL_NIF_TERM atom_none;
 
 ErlNifResourceType* EXD_RES_TYPE;
 ErlNifResourceType* EXN_RES_TYPE;
-ErlNifResourceType* EXP_RES_TYPE;
 
 typedef struct {
   xmlDocPtr doc;
 } Document;
 
 typedef struct {
-  xmlDocPtr doc;
+  Document *doc;
   xmlNodePtr node;
 } Node;
 

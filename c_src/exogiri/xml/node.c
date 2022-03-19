@@ -4,7 +4,7 @@
 
 void free_node(ErlNifEnv* __attribute__((unused))env, void* obj) {
   Node* node = (Node*)obj;
-  xmlFreeDoc(node->doc);
+  enif_release_resource(node->doc);
 }
 
 ERL_NIF_TERM priv_node_local_name(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[]) {
@@ -71,3 +71,42 @@ ERL_NIF_TERM priv_node_namespace(ErlNifEnv* env, int argc, const ERL_NIF_TERM ar
   }
   return atom_none;
 }
+
+ERL_NIF_TERM create_node_term(ErlNifEnv* env, Document* document, xmlNodePtr np) {
+  ERL_NIF_TERM result;
+
+  Node* nodeRes = (Node *)enif_alloc_resource(EXN_RES_TYPE, sizeof(Node));
+  nodeRes->node = np;
+  nodeRes->doc = document;
+  enif_keep_resource(document);
+  result = enif_make_resource(env, nodeRes);
+  enif_release_resource(nodeRes);
+  return result;
+}
+/*
+Node* clone_node(Node* inNode) {
+  xmlDocPtr doc_copy;
+  xmlNodePtr np_copy;
+  Node* node_copy;
+  xmlXPathContextPtr ctx;
+  xmlChar *path;
+  xmlXPathObjectPtr xpath;
+
+  path = xmlGetNodePath(inNode->node);
+  node_copy = enif_alloc(sizeof(Node));
+  doc_copy = xmlCopyDoc(inNode->doc,1);
+
+  ctx = xmlXPathNewContext(doc_copy);
+
+  xpath = xmlXPathEvalExpression(path, ctx);
+  np_copy = *(xpath->nodesetval->nodeTab);
+
+  xmlXPathFreeNodeSet(xpath->nodesetval);
+  xmlXPathFreeNodeSetList(xpath);
+  xmlXPathFreeContext(ctx);
+
+  node_copy->doc = doc_copy;
+  node_copy->node = np_copy;
+
+  return node_copy;
+}*/
