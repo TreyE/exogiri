@@ -4,6 +4,7 @@
 
 void free_node(ErlNifEnv* __attribute__((unused))env, void* obj) {
   Node* node = (Node*)obj;
+  enif_free(node->owner);
   if (node->doc) {
     enif_release_resource(node->doc);
   }
@@ -79,8 +80,12 @@ ERL_NIF_TERM priv_node_namespace(ErlNifEnv* env, int argc, const ERL_NIF_TERM ar
 
 ERL_NIF_TERM create_node_term(ErlNifEnv* env, Document* document, xmlNodePtr np) {
   ERL_NIF_TERM result;
+  ErlNifPid *self;
 
+  self = (ErlNifPid *)enif_alloc(sizeof(ErlNifPid));
+  enif_self(env, self);
   Node* nodeRes = (Node *)enif_alloc_resource(EXN_RES_TYPE, sizeof(Node));
+  nodeRes->owner = self;
   nodeRes->node = np;
   nodeRes->doc = document;
   enif_keep_resource(document);
@@ -91,12 +96,17 @@ ERL_NIF_TERM create_node_term(ErlNifEnv* env, Document* document, xmlNodePtr np)
 
 ERL_NIF_TERM priv_node_unlink(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[]) {
   Node *node;
+  ErlNifPid self;
 
   if(argc != 1)
   {
     return enif_make_badarg(env);
   }
   if (!enif_get_resource(env, argv[0],EXN_RES_TYPE,(void **)&node)) {
+    return enif_make_badarg(env);
+  }
+  enif_self(env, &self);
+  if (enif_compare_pids(&self,node->owner) != 0) {
     return enif_make_badarg(env);
   }
 
@@ -112,6 +122,7 @@ ERL_NIF_TERM priv_node_unlink(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[
 ERL_NIF_TERM priv_node_add_child(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[]) {
   Node *p_node;
   Node *c_node;
+  ErlNifPid self;
 
   if(argc != 2)
   {
@@ -121,6 +132,15 @@ ERL_NIF_TERM priv_node_add_child(ErlNifEnv* env, int argc, const ERL_NIF_TERM ar
     return enif_make_badarg(env);
   }
   if (!enif_get_resource(env, argv[1],EXN_RES_TYPE,(void **)&c_node)) {
+    return enif_make_badarg(env);
+  }
+
+  enif_self(env, &self);
+  if (enif_compare_pids(&self,p_node->owner) != 0) {
+    return enif_make_badarg(env);
+  }
+  enif_self(env, &self);
+  if (enif_compare_pids(&self,c_node->owner) != 0) {
     return enif_make_badarg(env);
   }
 

@@ -14,10 +14,12 @@ ErlNifResourceType* EXD_RES_TYPE;
 ErlNifResourceType* EXN_RES_TYPE;
 
 typedef struct {
+  ErlNifPid* owner;
   xmlDocPtr doc;
 } Document;
 
 typedef struct {
+  ErlNifPid* owner;
   Document *prev_doc;
   Document *doc;
   xmlNodePtr node;

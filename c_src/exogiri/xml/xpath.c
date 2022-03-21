@@ -96,6 +96,7 @@ ERL_NIF_TERM priv_node_run_xpath_with_ns(ErlNifEnv* env, int argc, const ERL_NIF
   ErlNifBinary xpath_b;
   ERL_NIF_TERM pf_atom;
   xmlXPathContextPtr ctx;
+  ErlNifPid self;
   Node *node;
   xmlChar* query;
   xmlXPathObjectPtr xpath;
@@ -113,6 +114,10 @@ ERL_NIF_TERM priv_node_run_xpath_with_ns(ErlNifEnv* env, int argc, const ERL_NIF
     return enif_make_badarg(env);
   }
   if (!enif_get_resource(env, argv[0], EXN_RES_TYPE, (void **)&node)) {
+    return enif_make_badarg(env);
+  }
+  enif_self(env, &self);
+  if (enif_compare_pids(&self,node->owner) != 0) {
     return enif_make_badarg(env);
   }
 

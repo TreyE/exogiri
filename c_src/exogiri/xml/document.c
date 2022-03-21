@@ -5,6 +5,7 @@
 void free_document(ErlNifEnv* __attribute__((unused))env, void* obj)
 {
   Document* document = (Document *)obj;
+  enif_free(document->owner);
   xmlFreeDoc(document->doc);
 }
 
@@ -13,6 +14,7 @@ ERL_NIF_TERM priv_from_string(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[
   ErlNifBinary nb;
   ERL_NIF_TERM result;
   ERL_NIF_TERM result_tuple;
+  ErlNifPid *self;
   Errors* parse_errors;
   unsigned int error_size;
 
@@ -67,8 +69,10 @@ ERL_NIF_TERM priv_from_string(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[
     );
     return result_tuple;
   }
-  
+  self = (ErlNifPid *)enif_alloc(sizeof(ErlNifPid));
+  enif_self(env, self);
   Document* docRes = (Document *)enif_alloc_resource(EXD_RES_TYPE, sizeof(Document));
+  docRes->owner = self;
   docRes->doc = doc;
   result = enif_make_resource(env, docRes);
   enif_release_resource(docRes);
@@ -83,6 +87,7 @@ ERL_NIF_TERM priv_from_string(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[
 ERL_NIF_TERM priv_get_root(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[]) {
   Document *document;
   xmlNodePtr np;
+  ErlNifPid self;
 
   if(argc != 1)
   {
@@ -91,6 +96,12 @@ ERL_NIF_TERM priv_get_root(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[]) 
   if (!enif_get_resource(env, argv[0],EXD_RES_TYPE,(void **)&document)) {
     return enif_make_badarg(env);
   }
+
+  enif_self(env,&self);
+  if (enif_compare_pids(&self,document->owner) != 0) {
+    return enif_make_badarg(env);
+  }
+
   np = xmlDocGetRootElement(document->doc);
   return create_node_term(env, document, np);
 }
@@ -100,6 +111,7 @@ ERL_NIF_TERM priv_to_xml(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[]) {
   ErlNifBinary nb;
   Document *document;
   xmlDocPtr doc;
+  ErlNifPid self;
   int docSize;
   xmlChar* dumpedDoc;
 
@@ -108,6 +120,11 @@ ERL_NIF_TERM priv_to_xml(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[]) {
     return enif_make_badarg(env);
   }
   if (!enif_get_resource(env, argv[0],EXD_RES_TYPE,(void **)&document)) {
+    return enif_make_badarg(env);
+  }
+
+  enif_self(env,&self);
+  if (enif_compare_pids(&self,document->owner) != 0) {
     return enif_make_badarg(env);
   }
 
