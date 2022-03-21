@@ -135,10 +135,9 @@ ERL_NIF_TERM priv_node_add_child(ErlNifEnv* env, int argc, const ERL_NIF_TERM ar
     return enif_make_badarg(env);
   }
 
-  enif_self(env, &self);
-  if (enif_compare_pids(&self,p_node->owner) != 0) {
-    return enif_make_badarg(env);
-  }
+  CHECK_STRUCT_OWNER(env, self, p_node)
+  CHECK_STRUCT_OWNER(env, self, c_node)
+
   enif_self(env, &self);
   if (enif_compare_pids(&self,c_node->owner) != 0) {
     return enif_make_badarg(env);

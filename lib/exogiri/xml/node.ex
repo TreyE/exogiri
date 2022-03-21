@@ -3,7 +3,13 @@ defmodule Exogiri.Xml.Node do
 
   defstruct [:ref]
 
+  @typedoc "The Node type."
   @opaque t :: %__MODULE__{}
+
+  @typedoc """
+  You've either managed to bork the parser (rare), OR my C code is bad (put your money here).
+  """
+  @type unknown_xpath_error :: {:error, :unknown_error}
 
   def local_name(%__MODULE__{} = a) do
     Exogiri.Xml.Internal.priv_node_local_name(a.ref)
@@ -16,6 +22,10 @@ defmodule Exogiri.Xml.Node do
     end
   end
 
+  @spec xpath(Exogiri.Xml.Node.t(), any, any) ::
+    unknown_xpath_error() |
+    {:error, [term]} |
+    {:ok, [t]}
   def xpath(%__MODULE__{} = a, xpath, nses) do
     case Exogiri.Xml.Internal.priv_node_run_xpath_with_ns(a.ref, xpath, nses) do
       {:error, a} -> {:error, a}

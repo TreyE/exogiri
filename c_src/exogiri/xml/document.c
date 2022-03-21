@@ -97,10 +97,7 @@ ERL_NIF_TERM priv_get_root(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[]) 
     return enif_make_badarg(env);
   }
 
-  enif_self(env,&self);
-  if (enif_compare_pids(&self,document->owner) != 0) {
-    return enif_make_badarg(env);
-  }
+  CHECK_STRUCT_OWNER(env, self, document)
 
   np = xmlDocGetRootElement(document->doc);
   return create_node_term(env, document, np);
@@ -123,10 +120,7 @@ ERL_NIF_TERM priv_to_xml(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[]) {
     return enif_make_badarg(env);
   }
 
-  enif_self(env,&self);
-  if (enif_compare_pids(&self,document->owner) != 0) {
-    return enif_make_badarg(env);
-  }
+  CHECK_STRUCT_OWNER(env, self, document)
 
   doc = document->doc;
 

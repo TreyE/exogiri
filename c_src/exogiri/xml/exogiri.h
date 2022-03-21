@@ -31,3 +31,8 @@ typedef struct {
 } Errors;
 
 void Exogiri_error_array_pusher(void *ctx, xmlErrorPtr error);
+
+#define CHECK_STRUCT_OWNER(env_var, pid_var, struct_var) enif_self(env_var, &pid_var); \
+  if (enif_compare_pids(&pid_var,struct_var->owner) != 0) { \
+    return enif_make_badarg(env); \
+  }

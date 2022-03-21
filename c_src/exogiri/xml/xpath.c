@@ -116,12 +116,13 @@ ERL_NIF_TERM priv_node_run_xpath_with_ns(ErlNifEnv* env, int argc, const ERL_NIF
   if (!enif_get_resource(env, argv[0], EXN_RES_TYPE, (void **)&node)) {
     return enif_make_badarg(env);
   }
-  enif_self(env, &self);
-  if (enif_compare_pids(&self,node->owner) != 0) {
-    return enif_make_badarg(env);
-  }
+
+  CHECK_STRUCT_OWNER(env, self, node)
 
   ns_hash = argv[2];
+
+
+
 
   ctx = xmlXPathNewContext(node->doc->doc);
   register_xml_nses_from_map(ctx, env, ns_hash);
