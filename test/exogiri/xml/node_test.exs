@@ -28,7 +28,21 @@ defmodule Exogiri.Xml.NodeTest do
     {:ok, [node]} = Exogiri.Xml.Node.xpath(root,"//ns:child2",%{"ns" => "urn:something"})
     {:ok, [new_parent]} = Exogiri.Xml.Node.xpath(root,"//ns:child1",%{"ns" => "urn:something"})
     Exogiri.Xml.Node.unlink(node)
-    Exogiri.Xml.Node.add_child(new_parent, node)
-    IO.inspect Exogiri.Xml.Document.to_xml(a)
+    :ok = Exogiri.Xml.Node.add_child(new_parent, node)
+  end
+
+  test "can get node content" do
+    {:ok, a} = Exogiri.Xml.Document.from_string("<root xmlns=\"urn:something\"><child1>THE CONTENT</child1></root>")
+    root = Exogiri.Xml.Document.root(a)
+    {:ok, [node]} = Exogiri.Xml.Node.xpath(root,"//ns:child1",%{"ns" => "urn:something"})
+    "THE CONTENT" = Exogiri.Xml.Node.content(node)
+  end
+
+  test "can get node attribute value" do
+    {:ok, a} = Exogiri.Xml.Document.from_string("<root xmlns=\"urn:something\"><child1 attribute_name=\"THE ATTRIBUTE VALUE\">THE CONTENT</child1></root>")
+    root = Exogiri.Xml.Document.root(a)
+    {:ok, [node]} = Exogiri.Xml.Node.xpath(root,"//ns:child1",%{"ns" => "urn:something"})
+    nil = Exogiri.Xml.Node.attribute_value(node, "bogus_attribute_name")
+    "THE ATTRIBUTE VALUE" = Exogiri.Xml.Node.attribute_value(node, "attribute_name")
   end
 end

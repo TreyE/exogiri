@@ -31,6 +31,8 @@ typedef struct {
 } Errors;
 
 void Exogiri_error_array_pusher(void *ctx, xmlErrorPtr error);
+xmlChar *nif_binary_to_xmlChar(ErlNifBinary * bin);
+ERL_NIF_TERM xml_char_to_binary_term(ErlNifEnv* env, xmlChar *content);
 
 #define CHECK_STRUCT_OWNER(env_var, pid_var, struct_var) enif_self(env_var, &pid_var); \
   if (enif_compare_pids(&pid_var,struct_var->owner) != 0) { \

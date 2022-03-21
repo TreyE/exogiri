@@ -17,6 +17,7 @@ ERL_NIF_TERM priv_node_local_name(ErlNifEnv* env, int argc, const ERL_NIF_TERM a
   Node *node;
   ErlNifBinary nb;
   ERL_NIF_TERM result;
+  ErlNifPid self;
   
   size_t nameLen;
 
@@ -27,6 +28,9 @@ ERL_NIF_TERM priv_node_local_name(ErlNifEnv* env, int argc, const ERL_NIF_TERM a
   if (!enif_get_resource(env, argv[0],EXN_RES_TYPE,(void **)&node)) {
     return enif_make_badarg(env);
   }
+
+  CHECK_STRUCT_OWNER(env, self, node)
+
   nameLen = xmlStrlen(node->node->name);
   enif_alloc_binary(nameLen,&nb);
   memcpy(nb.data, node->node->name, nameLen);
@@ -153,6 +157,69 @@ ERL_NIF_TERM priv_node_add_child(ErlNifEnv* env, int argc, const ERL_NIF_TERM ar
   enif_keep_resource(p_node->doc);
 
   return atom_ok;
+}
+
+ERL_NIF_TERM priv_node_content(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[]) {
+  Node *node;
+  ErlNifBinary nb;
+  ERL_NIF_TERM result;
+  xmlChar *content;
+  ErlNifPid self;
+  
+  size_t contentLen;
+
+  if(argc != 1)
+  {
+    return enif_make_badarg(env);
+  }
+  if (!enif_get_resource(env, argv[0],EXN_RES_TYPE,(void **)&node)) {
+    return enif_make_badarg(env);
+  }
+
+  CHECK_STRUCT_OWNER(env, self, node)
+
+  content = xmlNodeGetContent(node->node);
+  contentLen = xmlStrlen(content);
+  enif_alloc_binary(contentLen,&nb);
+  memcpy(nb.data, content, contentLen);
+  result = enif_make_binary(env,&nb);
+  enif_release_binary(&nb);
+  return result;
+}
+
+ERL_NIF_TERM priv_node_attribute_value(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[]) {
+  Node *node;
+  ErlNifPid self;
+  ErlNifBinary attr_name_b;
+  ERL_NIF_TERM result;
+  xmlChar *attr_name;
+  xmlChar *attr_val;
+
+  if(argc != 2)
+  {
+    return enif_make_badarg(env);
+  }
+  if (!enif_inspect_binary(env, argv[1], &attr_name_b)) {
+    return enif_make_badarg(env);
+  }
+  if (!enif_get_resource(env, argv[0],EXN_RES_TYPE,(void **)&node)) {
+    return enif_make_badarg(env);
+  }
+
+  CHECK_STRUCT_OWNER(env, self, node)
+
+  attr_name = nif_binary_to_xmlChar(&attr_name_b);
+
+  attr_val = xmlGetProp(node->node, attr_name);
+  if (!attr_val) {
+    enif_free(attr_name);
+    return atom_none;
+  }
+  result = xml_char_to_binary_term(env, attr_val);
+  xmlFree(attr_val);
+  enif_free(attr_name);
+
+  return result;
 }
 
 /*

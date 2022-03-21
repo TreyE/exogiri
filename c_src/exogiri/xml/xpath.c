@@ -3,16 +3,6 @@
 #include "exogiri.h"
 #include "node.h"
 
-xmlChar *nif_binary_to_xmlChar(ErlNifBinary * bin) {
-  xmlChar* result;
-  int bin_size;
-  bin_size = bin->size + 1;
-  result = (xmlChar*)enif_alloc(bin_size);
-  memset(result, 0, bin_size);
-  memcpy(result, bin->data, bin->size);
-  return result;
-}
-
 void register_xpath_query_ns(xmlXPathContextPtr ctx, unsigned char* prefix, unsigned char* uri) {
   xmlXPathRegisterNs(ctx,
                      prefix,

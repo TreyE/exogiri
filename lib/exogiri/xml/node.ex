@@ -4,7 +4,7 @@ defmodule Exogiri.Xml.Node do
   defstruct [:ref]
 
   @typedoc "The Node type."
-  @opaque t :: %__MODULE__{}
+  @opaque t :: %__MODULE__{ref: reference()}
 
   @typedoc """
   You've either managed to bork the parser (rare), OR my C code is bad (put your money here).
@@ -39,5 +39,18 @@ defmodule Exogiri.Xml.Node do
 
   def add_child(%__MODULE__{} = parent, %__MODULE__{} = child) do
     Exogiri.Xml.Internal.priv_node_add_child(parent.ref, child.ref)
+  end
+
+  @spec content(Exogiri.Xml.Node.t()) :: binary()
+  def content(%__MODULE__{} = a) do
+    Exogiri.Xml.Internal.priv_node_content(a.ref)
+  end
+
+  @spec attribute_value(Exogiri.Xml.Node.t(), String.t) :: String.t | nil
+  def attribute_value(%__MODULE__{} = a, attr_name) do
+    case Exogiri.Xml.Internal.priv_node_attribute_value(a.ref, attr_name) do
+      :none -> nil
+      a -> a
+    end
   end
 end
