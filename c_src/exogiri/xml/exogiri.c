@@ -7,9 +7,9 @@ static int
 open_resource(ErlNifEnv* env)
 {
     const char* mod = "exogiri_xml_document";
-    const char* name = "Elixir.Exogiri.Xml.Document.Nif";
+    const char* name = "Elixir.Exogiri.Xml.Internal.Nif";
     const char* n_mod = "exogiri_xml_node";
-    const char* n_name = "Elixir.Exogiri.Xml.Document.Nif";
+    const char* n_name = "Elixir.Exogiri.Xml.Internal.Nif";
 
     int flags = ERL_NIF_RT_CREATE | ERL_NIF_RT_TAKEOVER;
 
@@ -50,6 +50,7 @@ static ErlNifFunc nif_funcs[] =
   {"priv_doc_get_root", 1, priv_get_root, 0},
   {"priv_node_local_name", 1, priv_node_local_name, 0},
   {"priv_node_namespace", 1, priv_node_namespace, 0},
+  {"priv_node_namespaces", 1, priv_node_namespaces, 0},
   {"priv_node_run_xpath_with_ns", 3, priv_node_run_xpath_with_ns, 0},
   {"priv_node_unlink", 1, priv_node_unlink, 0},
   {"priv_node_add_child", 2, priv_node_add_child, 0},

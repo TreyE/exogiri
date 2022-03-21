@@ -37,7 +37,6 @@ ERL_NIF_TERM priv_from_string(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[
   xmlSetStructuredErrorFunc((void *)parse_errors, Exogiri_error_array_pusher);
   in_str = nif_binary_to_xmlChar(&nb);
   doc = xmlParseDoc(in_str);
-  //xmlReadMemory(in_string, nb.size, NULL, NULL, 1);
   enif_free(in_str);
   enif_get_list_length(env, parse_errors->errors, &error_size);
   if (error_size > 0) {

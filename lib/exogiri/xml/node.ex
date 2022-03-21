@@ -10,13 +10,29 @@ defmodule Exogiri.Xml.Node do
   """
   @type unknown_xpath_error :: {:error, :unknown_error}
 
+  @doc """
+  Get the local name of a Node.
+  """
   @spec local_name(Exogiri.Xml.Node.t()) :: binary()
   def local_name(%__MODULE__{} = a) do
     Exogiri.Xml.Internal.priv_node_local_name(a.ref)
   end
 
+  @doc """
+  Get the namespace of a node, as {abbreviation, href}.
+  """
   def namespace(%__MODULE__{} = a) do
     case Exogiri.Xml.Internal.priv_node_namespace(a.ref) do
+      :none -> nil
+      a -> a
+    end
+  end
+
+  @doc """
+  Get the list of namespaces in this node's context.
+  """
+  def namespaces(%__MODULE__{} = a) do
+    case Exogiri.Xml.Internal.priv_node_namespaces(a.ref) do
       :none -> nil
       a -> a
     end

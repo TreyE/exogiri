@@ -39,15 +39,39 @@ ERL_NIF_TERM priv_node_local_name(ErlNifEnv* env, int argc, const ERL_NIF_TERM a
   return result;
 }
 
-ERL_NIF_TERM priv_node_namespace(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[]) {
-  Node *node;
+ERL_NIF_TERM namespace_as_tuple(ErlNifEnv* env, xmlNsPtr ns) {
   ErlNifBinary ns_prefix_nb;
   ErlNifBinary ns_href_nb;
   ERL_NIF_TERM ns_prefix_term;
   ERL_NIF_TERM ns_href_term;
-  xmlNsPtr ns;
   int ns_prefix_size;
   int ns_href_size;
+
+  if (ns->prefix) {
+    ns_prefix_size = xmlStrlen(ns->prefix);
+    enif_alloc_binary(ns_prefix_size, &ns_prefix_nb);
+    memcpy(ns_prefix_nb.data, ns->prefix, ns_prefix_size);
+  } else {
+    ns_prefix_size = 0;
+    enif_alloc_binary(ns_prefix_size, &ns_prefix_nb);
+  }
+  ns_prefix_term = enif_make_binary(env, &ns_prefix_nb);
+  enif_release_binary(&ns_prefix_nb);
+  ns_href_size = xmlStrlen(ns->href);
+  enif_alloc_binary(ns_href_size, &ns_href_nb);
+  memcpy(ns_href_nb.data, ns->href, ns_href_size);
+  ns_href_term = enif_make_binary(env, &ns_href_nb);
+  enif_release_binary(&ns_href_nb);
+  return enif_make_tuple2(
+    env,
+    ns_prefix_term,
+    ns_href_term
+  );
+}
+
+ERL_NIF_TERM priv_node_namespace(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[]) {
+  Node *node;
+  xmlNsPtr ns;
 
   if(argc != 1)
   {
@@ -58,28 +82,44 @@ ERL_NIF_TERM priv_node_namespace(ErlNifEnv* env, int argc, const ERL_NIF_TERM ar
   }
   ns = node->node->ns;
   if (ns) {
-    if (ns->prefix) {
-      ns_prefix_size = xmlStrlen(ns->prefix);
-      enif_alloc_binary(ns_prefix_size, &ns_prefix_nb);
-      memcpy(ns_prefix_nb.data, ns->prefix, ns_prefix_size);
-    } else {
-      ns_prefix_size = 0;
-      enif_alloc_binary(ns_prefix_size, &ns_prefix_nb);
-    }
-    ns_prefix_term = enif_make_binary(env, &ns_prefix_nb);
-    enif_release_binary(&ns_prefix_nb);
-    ns_href_size = xmlStrlen(ns->href);
-    enif_alloc_binary(ns_href_size, &ns_href_nb);
-    memcpy(ns_href_nb.data, ns->href, ns_href_size);
-    ns_href_term = enif_make_binary(env, &ns_href_nb);
-    enif_release_binary(&ns_href_nb);
-    return enif_make_tuple2(
-      env,
-      ns_prefix_term,
-      ns_href_term
-    );
+    return namespace_as_tuple(env, ns);
   }
   return atom_none;
+}
+
+ERL_NIF_TERM priv_node_namespaces(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[]) {
+  Node *node;
+  ErlNifPid self;
+  xmlNsPtr *namespaces;
+  ERL_NIF_TERM ns_terms;
+  int j;
+
+  if(argc != 1)
+  {
+    return enif_make_badarg(env);
+  }
+  if (!enif_get_resource(env, argv[0],EXN_RES_TYPE,(void **)&node)) {
+    return enif_make_badarg(env);
+  }
+
+  CHECK_STRUCT_OWNER(env, self, node)
+
+  namespaces = xmlGetNsList(node->doc->doc, node->node);
+  if (!namespaces) {
+    return enif_make_list(env, 0);
+  }
+
+  ns_terms = enif_make_list(env, 0);
+  for (j = 0 ; namespaces[j] != NULL ; ++j) {
+    ns_terms = enif_make_list_cell(
+      env,
+      namespace_as_tuple(env, namespaces[j]),
+      ns_terms
+    );
+  }
+
+  xmlFree(namespaces);
+  return ns_terms;
 }
 
 ERL_NIF_TERM create_node_term(ErlNifEnv* env, Document* document, xmlNodePtr np) {
@@ -109,10 +149,7 @@ ERL_NIF_TERM priv_node_unlink(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[
   if (!enif_get_resource(env, argv[0],EXN_RES_TYPE,(void **)&node)) {
     return enif_make_badarg(env);
   }
-  enif_self(env, &self);
-  if (enif_compare_pids(&self,node->owner) != 0) {
-    return enif_make_badarg(env);
-  }
+  CHECK_STRUCT_OWNER(env, self, node)
 
   if (node->doc) {
     enif_release_resource(node->doc);

@@ -7,6 +7,7 @@ defmodule Exogiri.Xml.Internal do
   defnif priv_doc_get_root(doc_ref)
   defnif priv_node_local_name(node_ref)
   defnif priv_node_namespace(node_ref)
+  defnif priv_node_namespaces(node_ref)
   defnif priv_node_run_xpath_with_ns(node_ref,xpath,nses)
   defnif priv_node_unlink(node_ref)
   defnif priv_node_add_child(parent_node_ref, child_node_ref)

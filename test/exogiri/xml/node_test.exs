@@ -11,15 +11,22 @@ defmodule Exogiri.Xml.NodeTest do
 
   test "reads a basic, correct document, and knows the root node local name and default namespace" do
     {:ok, a} = Exogiri.Xml.Document.from_string("<hello xmlns=\"urn:something\"></hello>")
-    a = Exogiri.Xml.Document.root(a)
-    "hello" = Exogiri.Xml.Node.local_name(a)
-    {"", "urn:something"} = Exogiri.Xml.Node.namespace(a)
+    root = Exogiri.Xml.Document.root(a)
+    "hello" = Exogiri.Xml.Node.local_name(root)
+    {"", "urn:something"} = Exogiri.Xml.Node.namespace(root)
+  end
+
+  test "can get namespaces for a node" do
+    {:ok, a} = Exogiri.Xml.Document.from_string("<root:hello xmlns:root=\"urn:something\"><child xmlns=\"urn:something_else\"/> </root:hello>")
+    root = Exogiri.Xml.Document.root(a)
+    {:ok, [node]} = Exogiri.Xml.Node.xpath(root,"//ns:child",%{"ns" => "urn:something_else"})
+    [{"root", "urn:something"}, {"", "urn:something_else"}] = Exogiri.Xml.Node.namespaces(node)
   end
 
   test "can remove a node" do
     {:ok, a} = Exogiri.Xml.Document.from_string("<hello xmlns=\"urn:something\"></hello>")
-    a = Exogiri.Xml.Document.root(a)
-    Exogiri.Xml.Node.unlink(a)
+    root = Exogiri.Xml.Document.root(a)
+    Exogiri.Xml.Node.unlink(root)
   end
 
   test "can find, remove, and then re-parent nodes" do
