@@ -260,6 +260,33 @@ ERL_NIF_TERM priv_node_set_attribute_value(ErlNifEnv* env, int argc, const ERL_N
   return atom_ok;
 }
 
+ERL_NIF_TERM priv_node_set_content(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[]) {
+  Node *node;
+  ErlNifPid self;
+  ErlNifBinary content_b;
+  xmlChar *content_val;
+
+  if(argc != 2)
+  {
+    return enif_make_badarg(env);
+  }
+  if (!enif_inspect_binary(env, argv[1], &content_b)) {
+    return enif_make_badarg(env);
+  }
+  if (!enif_get_resource(env, argv[0],EXN_RES_TYPE,(void **)&node)) {
+    return enif_make_badarg(env);
+  }
+
+  CHECK_STRUCT_OWNER(env, self, node)
+
+  content_val = nif_binary_to_xmlChar(&content_b);
+  xmlNodeSetContent(node->node, content_val);
+
+  enif_free(content_val);
+
+  return atom_ok;
+}
+
 /*
 // Clone a node and document and reserve reference to document
 Node* clone_node(Node* inNode) {

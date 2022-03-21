@@ -1,5 +1,4 @@
 defmodule Exogiri.Xml.Node do
-  # use Bundlex.Loader, nif: :exogiri_xml_node
 
   defstruct [:ref]
 
@@ -34,11 +33,20 @@ defmodule Exogiri.Xml.Node do
     end
   end
 
+  @doc """
+  Unlink a node from its parent.
+  """
   @spec unlink(Exogiri.Xml.Node.t()) :: :ok
   def unlink(%__MODULE__{} = a) do
     Exogiri.Xml.Internal.priv_node_unlink(a.ref)
   end
 
+
+  @doc """
+  Add a child node.
+
+  It will be moved from the previous parent if already had one.
+  """
   @spec add_child(Exogiri.Xml.Node.t(), Exogiri.Xml.Node.t()) :: :ok
   def add_child(%__MODULE__{} = parent, %__MODULE__{} = child) do
     Exogiri.Xml.Internal.priv_node_add_child(parent.ref, child.ref)
@@ -47,12 +55,20 @@ defmodule Exogiri.Xml.Node do
   @doc """
   Get the node content as a string.
   """
-  @spec content(Exogiri.Xml.Node.t()) :: binary() | nil
+  @spec content(Exogiri.Xml.Node.t()) :: String.t | nil
   def content(%__MODULE__{} = a) do
     case Exogiri.Xml.Internal.priv_node_content(a.ref) do
       :none -> nil
       a -> a
     end
+  end
+
+  @doc """
+  Set the node content as a string.
+  """
+  @spec set_content(Exogiri.Xml.Node.t(), String.t) :: :ok
+  def set_content(%__MODULE__{} = a, content) do
+    Exogiri.Xml.Internal.priv_node_set_content(a.ref, content)
   end
 
   @doc """

@@ -53,4 +53,12 @@ defmodule Exogiri.Xml.NodeTest do
     :ok = Exogiri.Xml.Node.set_attribute_value(node, "attribute_name", "THE ATTRIBUTE VALUE")
     "THE ATTRIBUTE VALUE" = Exogiri.Xml.Node.attribute_value(node, "attribute_name")
   end
+
+  test "can set node content" do
+    {:ok, a} = Exogiri.Xml.Document.from_string("<root xmlns=\"urn:something\"><child1>THE CONTENT</child1></root>")
+    root = Exogiri.Xml.Document.root(a)
+    {:ok, [node]} = Exogiri.Xml.Node.xpath(root,"//ns:child1",%{"ns" => "urn:something"})
+    :ok = Exogiri.Xml.Node.set_content(node, "THE NEW CONTENT")
+    "THE NEW CONTENT" = Exogiri.Xml.Node.content(node)
+  end
 end

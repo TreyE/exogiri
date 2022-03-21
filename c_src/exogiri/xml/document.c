@@ -16,11 +16,10 @@ ERL_NIF_TERM priv_from_string(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[
   ERL_NIF_TERM result_tuple;
   ErlNifPid *self;
   Errors* parse_errors;
+  xmlChar *in_str;
   unsigned int error_size;
 
   xmlDocPtr doc;
-
-  const char *in_string;
 
   if(argc != 1)
   {
@@ -30,15 +29,16 @@ ERL_NIF_TERM priv_from_string(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[
   if (!enif_inspect_binary(env, argv[0], &nb)) {
     return enif_make_badarg(env);
   }
-  in_string = nb.data;
 
   xmlResetLastError();
   parse_errors = (Errors*)enif_alloc(sizeof(Errors));
   parse_errors->env = env;
   parse_errors->errors = enif_make_list(env, 0);
   xmlSetStructuredErrorFunc((void *)parse_errors, Exogiri_error_array_pusher);
-  doc = xmlReadMemory(in_string, nb.size, NULL, NULL, 1);
-
+  in_str = nif_binary_to_xmlChar(&nb);
+  doc = xmlParseDoc(in_str);
+  //xmlReadMemory(in_string, nb.size, NULL, NULL, 1);
+  enif_free(in_str);
   enif_get_list_length(env, parse_errors->errors, &error_size);
   if (error_size > 0) {
     xmlFreeDoc(doc);

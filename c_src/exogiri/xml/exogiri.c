@@ -54,6 +54,7 @@ static ErlNifFunc nif_funcs[] =
   {"priv_node_unlink", 1, priv_node_unlink, 0},
   {"priv_node_add_child", 2, priv_node_add_child, 0},
   {"priv_node_content", 1, priv_node_content, 0},
+  {"priv_node_set_content", 2, priv_node_set_content, 0},
   {"priv_node_attribute_value", 2, priv_node_attribute_value, 0},
   {"priv_node_set_attribute_value", 3, priv_node_set_attribute_value, 0}
 };
