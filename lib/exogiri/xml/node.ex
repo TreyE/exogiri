@@ -7,10 +7,11 @@ defmodule Exogiri.Xml.Node do
   @opaque t :: %__MODULE__{ref: reference()}
 
   @typedoc """
-  You've either managed to bork the parser (rare), OR my C code is bad (put your money here).
+  You've either managed to bork the XPath parser (rare), OR my C code is bad (put your money here).
   """
   @type unknown_xpath_error :: {:error, :unknown_error}
 
+  @spec local_name(Exogiri.Xml.Node.t()) :: binary()
   def local_name(%__MODULE__{} = a) do
     Exogiri.Xml.Internal.priv_node_local_name(a.ref)
   end
@@ -33,24 +34,43 @@ defmodule Exogiri.Xml.Node do
     end
   end
 
+  @spec unlink(Exogiri.Xml.Node.t()) :: :ok
   def unlink(%__MODULE__{} = a) do
     Exogiri.Xml.Internal.priv_node_unlink(a.ref)
   end
 
+  @spec add_child(Exogiri.Xml.Node.t(), Exogiri.Xml.Node.t()) :: :ok
   def add_child(%__MODULE__{} = parent, %__MODULE__{} = child) do
     Exogiri.Xml.Internal.priv_node_add_child(parent.ref, child.ref)
   end
 
-  @spec content(Exogiri.Xml.Node.t()) :: binary()
+  @doc """
+  Get the node content as a string.
+  """
+  @spec content(Exogiri.Xml.Node.t()) :: binary() | nil
   def content(%__MODULE__{} = a) do
-    Exogiri.Xml.Internal.priv_node_content(a.ref)
+    case Exogiri.Xml.Internal.priv_node_content(a.ref) do
+      :none -> nil
+      a -> a
+    end
   end
 
+  @doc """
+  Retrieve the value of an attribute on the node by name.
+  """
   @spec attribute_value(Exogiri.Xml.Node.t(), String.t) :: String.t | nil
   def attribute_value(%__MODULE__{} = a, attr_name) do
     case Exogiri.Xml.Internal.priv_node_attribute_value(a.ref, attr_name) do
       :none -> nil
       a -> a
     end
+  end
+
+  @doc """
+  Set the value of an attribute on the node by name.
+  """
+  @spec set_attribute_value(Exogiri.Xml.Node.t(), String.t, String.t) :: :ok
+  def set_attribute_value(%__MODULE__{} = a, attr_name, attr_value) do
+    Exogiri.Xml.Internal.priv_node_set_attribute_value(a.ref, attr_name, attr_value)
   end
 end
