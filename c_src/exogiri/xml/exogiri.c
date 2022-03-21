@@ -50,7 +50,9 @@ static ErlNifFunc nif_funcs[] =
   {"priv_doc_get_root", 1, priv_get_root, 0},
   {"priv_node_local_name", 1, priv_node_local_name, 0},
   {"priv_node_namespace", 1, priv_node_namespace, 0},
-  {"priv_node_run_xpath_with_ns", 3, priv_node_run_xpath_with_ns, 0}
+  {"priv_node_run_xpath_with_ns", 3, priv_node_run_xpath_with_ns, 0},
+  {"priv_node_unlink", 1, priv_node_unlink, 0},
+  {"priv_node_add_child", 2, priv_node_add_child, 0}
 };
 
 ERL_NIF_INIT(Elixir.Exogiri.Xml.Internal.Nif,nif_funcs,&load,&reload,&upgrade,NULL)

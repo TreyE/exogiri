@@ -22,4 +22,12 @@ defmodule Exogiri.Xml.Node do
       {:ok, list} -> {:ok, Enum.map(Enum.reverse(list), fn(n) -> %Exogiri.Xml.Node{ref: n} end)}
     end
   end
+
+  def unlink(%__MODULE__{} = a) do
+    Exogiri.Xml.Internal.priv_node_unlink(a.ref)
+  end
+
+  def add_child(%__MODULE__{} = parent, %__MODULE__{} = child) do
+    Exogiri.Xml.Internal.priv_node_add_child(parent.ref, child.ref)
+  end
 end

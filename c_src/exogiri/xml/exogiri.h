@@ -18,6 +18,7 @@ typedef struct {
 } Document;
 
 typedef struct {
+  Document *prev_doc;
   Document *doc;
   xmlNodePtr node;
 } Node;
