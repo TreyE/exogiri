@@ -45,16 +45,16 @@ upgrade(ErlNifEnv* env, void** __attribute__((unused))priv, void** __attribute__
 
 static ErlNifFunc nif_funcs[] =
 {
-  {"priv_from_string", 1, priv_from_string, 0},
-  {"priv_to_xml", 1, priv_to_xml, 0},
+  {"priv_from_string", 1, priv_from_string, ERL_NIF_DIRTY_JOB_CPU_BOUND},
+  {"priv_to_xml", 1, priv_to_xml, ERL_NIF_DIRTY_JOB_CPU_BOUND},
   {"priv_doc_get_root", 1, priv_get_root, 0},
-  {"priv_doc_canonicalize", 1,priv_doc_canonicalize, 0},
+  {"priv_doc_canonicalize", 1,priv_doc_canonicalize, ERL_NIF_DIRTY_JOB_CPU_BOUND},
   {"priv_node_local_name", 1, priv_node_local_name, 0},
   {"priv_node_namespace", 1, priv_node_namespace, 0},
   {"priv_node_namespaces", 1, priv_node_namespaces, 0},
-  {"priv_node_run_xpath_with_ns", 3, priv_node_run_xpath_with_ns, 0},
+  {"priv_node_run_xpath_with_ns", 3, priv_node_run_xpath_with_ns, ERL_NIF_DIRTY_JOB_CPU_BOUND},
   {"priv_node_unlink", 1, priv_node_unlink, 0},
-  {"priv_node_add_child", 2, priv_node_add_child, 0},
+  {"priv_node_add_child", 2, priv_node_add_child, ERL_NIF_DIRTY_JOB_CPU_BOUND},
   {"priv_node_content", 1, priv_node_content, 0},
   {"priv_node_set_content", 2, priv_node_set_content, 0},
   {"priv_node_attribute_value", 2, priv_node_attribute_value, 0},
