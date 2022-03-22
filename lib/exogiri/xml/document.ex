@@ -36,6 +36,10 @@ defmodule Exogiri.Xml.Document do
     }
   end
 
+  def canonicalize(%__MODULE__{ref: ref}) do
+    Exogiri.Xml.Internal.priv_doc_canonicalize(ref)
+  end
+
   defp format_errors(errs) do
     errs
      |> Enum.reverse()

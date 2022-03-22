@@ -5,6 +5,7 @@
 #include <libxml/tree.h>
 #include <libxml/xpath.h>
 #include <libxml/xpathinternals.h>
+#include <libxml/c14n.h>
 
 extern ERL_NIF_TERM atom_ok;
 extern ERL_NIF_TERM atom_error;

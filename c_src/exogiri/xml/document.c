@@ -138,3 +138,37 @@ ERL_NIF_TERM priv_to_xml(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[]) {
   xmlFree(dumpedDoc);
   return result;
 }
+
+ERL_NIF_TERM priv_doc_canonicalize(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[]) {
+  ERL_NIF_TERM result;
+  Document *document;
+  ErlNifPid self;
+  int docSize;
+  xmlChar* dumpedDoc;
+
+  if(argc != 1)
+  {
+    return enif_make_badarg(env);
+  }
+  if (!enif_get_resource(env, argv[0],EXD_RES_TYPE,(void **)&document)) {
+    return enif_make_badarg(env);
+  }
+
+  CHECK_STRUCT_OWNER(env, self, document)
+
+  docSize = xmlC14NDocDumpMemory(
+    document->doc,
+    NULL,
+    XML_C14N_1_0,
+    NULL,
+    0,
+    &dumpedDoc
+  );
+  if (dumpedDoc < 0) {
+    return atom_error;
+  }
+  result = xml_char_to_binary_term(env, dumpedDoc);
+  xmlFree(dumpedDoc);
+
+  return result;
+}

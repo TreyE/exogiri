@@ -16,6 +16,7 @@ defmodule Exogiri.Xml.NodeTest do
     {"", "urn:something"} = Exogiri.Xml.Node.namespace(root)
   end
 
+  # TODO: Fix the ordering of the results so the test will always pass.
   test "can get namespaces for a node" do
     {:ok, a} = Exogiri.Xml.Document.from_string("<root:hello xmlns:root=\"urn:something\"><child xmlns=\"urn:something_else\"/> </root:hello>")
     root = Exogiri.Xml.Document.root(a)
@@ -29,13 +30,14 @@ defmodule Exogiri.Xml.NodeTest do
     Exogiri.Xml.Node.unlink(root)
   end
 
-  test "can find, remove, and then re-parent nodes" do
-    {:ok, a} = Exogiri.Xml.Document.from_string("<root xmlns=\"urn:something\"><child1/><child2/></root>")
+  test "can find, remove, and then re-parent nodes, and then serialize canonically" do
+    {:ok, a} = Exogiri.Xml.Document.from_string("<root xmlns=\"urn:something\"><child1 xmlns=\"urn:something_else\"/><child2/></root>")
     root = Exogiri.Xml.Document.root(a)
     {:ok, [node]} = Exogiri.Xml.Node.xpath(root,"//ns:child2",%{"ns" => "urn:something"})
-    {:ok, [new_parent]} = Exogiri.Xml.Node.xpath(root,"//ns:child1",%{"ns" => "urn:something"})
+    {:ok, [new_parent]} = Exogiri.Xml.Node.xpath(root,"//ns:child1",%{"ns" => "urn:something_else"})
     :ok = Exogiri.Xml.Node.unlink(node)
     :ok = Exogiri.Xml.Node.add_child(new_parent, node)
+    "<root xmlns=\"urn:something\"><child1 xmlns=\"urn:something_else\"><default:child2 xmlns:default=\"urn:something\"></default:child2></child1></root>" = Exogiri.Xml.Document.canonicalize(a)
   end
 
   test "can get node content" do

@@ -48,6 +48,7 @@ static ErlNifFunc nif_funcs[] =
   {"priv_from_string", 1, priv_from_string, 0},
   {"priv_to_xml", 1, priv_to_xml, 0},
   {"priv_doc_get_root", 1, priv_get_root, 0},
+  {"priv_doc_canonicalize", 1,priv_doc_canonicalize, 0},
   {"priv_node_local_name", 1, priv_node_local_name, 0},
   {"priv_node_namespace", 1, priv_node_namespace, 0},
   {"priv_node_namespaces", 1, priv_node_namespaces, 0},

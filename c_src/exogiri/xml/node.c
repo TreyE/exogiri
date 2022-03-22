@@ -179,17 +179,13 @@ ERL_NIF_TERM priv_node_add_child(ErlNifEnv* env, int argc, const ERL_NIF_TERM ar
   CHECK_STRUCT_OWNER(env, self, p_node)
   CHECK_STRUCT_OWNER(env, self, c_node)
 
-  enif_self(env, &self);
-  if (enif_compare_pids(&self,c_node->owner) != 0) {
-    return enif_make_badarg(env);
-  }
-
   if (c_node->doc) {
     enif_release_resource(c_node->doc);
     xmlUnlinkNode(c_node->node);
     c_node->doc = NULL;
   }
   xmlAddChild(p_node->node, c_node->node);
+  xmlReconciliateNs(p_node->doc->doc, c_node->node);
   c_node->doc = p_node->doc;
   enif_keep_resource(p_node->doc);
 
