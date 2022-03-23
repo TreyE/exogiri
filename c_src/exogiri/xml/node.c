@@ -320,6 +320,64 @@ ERL_NIF_TERM priv_node_set_content(ErlNifEnv* env, int argc, const ERL_NIF_TERM 
   return atom_ok;
 }
 
+ERL_NIF_TERM node_list_to_term(ErlNifEnv* env, Document* document, xmlNodeSetPtr nodes) {
+  ERL_NIF_TERM result_list_reversed;
+  xmlNodePtr* nsp;
+  ERL_NIF_TERM result_node;
+  ERL_NIF_TERM result_list;
+  int listLength;
+  int i;
+  listLength = nodes->nodeNr;
+  result_list_reversed = enif_make_list(env, 0);
+  nsp = nodes->nodeTab;
+
+  for (i = 0; i<listLength; i++) {
+    result_node = create_node_term(env, document, *nsp);
+    result_list_reversed = enif_make_list_cell(
+      env,
+      result_node,
+      result_list_reversed
+    );
+    nsp++;
+  }
+
+  enif_make_reverse_list(env, result_list_reversed, &result_list);
+
+  return result_list;
+}
+
+ERL_NIF_TERM priv_node_children(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[]) {
+  Node *node;
+  ErlNifPid self;
+  xmlNodePtr child;
+  xmlNodeSetPtr set;
+
+  if(argc != 1)
+  {
+    return enif_make_badarg(env);
+  }
+  if (!enif_get_resource(env, argv[0],EXN_RES_TYPE,(void **)&node)) {
+    return enif_make_badarg(env);
+  }
+
+  CHECK_STRUCT_OWNER(env, self, node)
+
+  child = node->node->children;
+  if (!child) {
+    return enif_make_list(env, 0);
+  }
+
+  set = xmlXPathNodeSetCreate(child);
+  child = child->next;
+  while (NULL != child) {
+    xmlXPathNodeSetAddUnique(set, child);
+    child = child->next;
+  }
+
+  return node_list_to_term(env, node->doc, set);
+}
+
+
 /*
 // Clone a node and document and reserve reference to document
 Node* clone_node(Node* inNode) {

@@ -105,4 +105,17 @@ defmodule Exogiri.Xml.Node do
   def set_attribute_value(%__MODULE__{} = a, attr_name, attr_value) do
     Exogiri.Xml.Internal.priv_node_set_attribute_value(a.ref, attr_name, attr_value)
   end
+
+  @doc """
+  Return the children of a node.
+  """
+  @spec children(Exogiri.Xml.Node.t()) :: [t()]
+  def children(%__MODULE__{} = a) do
+    Enum.map(
+      Exogiri.Xml.Internal.priv_node_children(a.ref),
+      fn(n) ->
+        %Exogiri.Xml.Node{ref: n}
+      end
+    )
+  end
 end

@@ -70,4 +70,12 @@ defmodule Exogiri.Xml.NodeTest do
     :ok = Exogiri.Xml.Node.set_content(node, "THE NEW CONTENT")
     "THE NEW CONTENT" = Exogiri.Xml.Node.content(node)
   end
+
+  test "can get node children" do
+    {:ok, a} = Exogiri.Xml.Document.from_string("<root xmlns=\"urn:something\"><child1 xmlns=\"urn:something_else\"/><child2/></root>")
+    root = Exogiri.Xml.Document.root(a)
+    [child1, child2] = Exogiri.Xml.Node.children(root)
+    "child1" = Exogiri.Xml.Node.local_name(child1)
+    "child2" = Exogiri.Xml.Node.local_name(child2)
+  end
 end

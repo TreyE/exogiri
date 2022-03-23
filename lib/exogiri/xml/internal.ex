@@ -16,4 +16,5 @@ defmodule Exogiri.Xml.Internal do
   defnif priv_node_set_content(node_ref, content)
   defnif priv_node_attribute_value(node_ref, attr_name)
   defnif priv_node_set_attribute_value(node_ref, attr_name, attr_value)
+  defnif priv_node_children(node_ref)
 end
