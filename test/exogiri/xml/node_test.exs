@@ -86,4 +86,21 @@ defmodule Exogiri.Xml.NodeTest do
     parent = Exogiri.Xml.Node.parent(node)
     "child1" = Exogiri.Xml.Node.local_name(parent)
   end
+
+  test "can get previous sibling" do
+    {:ok, a} = Exogiri.Xml.Document.from_string("<root xmlns=\"urn:something\"><child1 xmlns=\"urn:something_else\"/><child2/></root>")
+    root = Exogiri.Xml.Document.root(a)
+    {:ok, [node]} = Exogiri.Xml.Node.xpath(root,"//ns:child2",%{"ns" => "urn:something"})
+    sibling = Exogiri.Xml.Node.previous_sibling(node)
+    "child1" = Exogiri.Xml.Node.local_name(sibling)
+  end
+
+  test "can get next sibling" do
+    {:ok, a} = Exogiri.Xml.Document.from_string("<root xmlns=\"urn:something\"><child1 xmlns=\"urn:something_else\"/><child2/></root>")
+    root = Exogiri.Xml.Document.root(a)
+    {:ok, [node]} = Exogiri.Xml.Node.xpath(root,"//ns:child1",%{"ns" => "urn:something_else"})
+    sibling = Exogiri.Xml.Node.next_sibling(node)
+    "child2" = Exogiri.Xml.Node.local_name(sibling)
+  end
+
 end

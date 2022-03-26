@@ -380,8 +380,6 @@ ERL_NIF_TERM priv_node_children(ErlNifEnv* env, int argc, const ERL_NIF_TERM arg
 ERL_NIF_TERM priv_node_parent(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[]) {
   Node *node;
   ErlNifPid self;
-  xmlNodePtr child;
-  xmlNodeSetPtr set;
 
   if(argc != 1)
   {
@@ -398,6 +396,54 @@ ERL_NIF_TERM priv_node_parent(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[
   }
 
   return create_node_term(env, node->doc, node->node->parent);
+}
+
+ERL_NIF_TERM priv_node_previous_sibling(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[]) {
+  Node *node;
+  ErlNifPid self;
+  xmlNodePtr sibling;
+
+  if(argc != 1)
+  {
+    return enif_make_badarg(env);
+  }
+  if (!enif_get_resource(env, argv[0],EXN_RES_TYPE,(void **)&node)) {
+    return enif_make_badarg(env);
+  }
+
+  CHECK_STRUCT_OWNER(env, self, node)
+
+  sibling = xmlPreviousElementSibling(node->node);
+
+  if (!sibling) {
+    return atom_none;
+  }
+
+  return create_node_term(env, node->doc, sibling);
+}
+
+ERL_NIF_TERM priv_node_next_sibling(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[]) {
+  Node *node;
+  ErlNifPid self;
+  xmlNodePtr sibling;
+
+  if(argc != 1)
+  {
+    return enif_make_badarg(env);
+  }
+  if (!enif_get_resource(env, argv[0],EXN_RES_TYPE,(void **)&node)) {
+    return enif_make_badarg(env);
+  }
+
+  CHECK_STRUCT_OWNER(env, self, node)
+
+  sibling = xmlNextElementSibling(node->node);
+
+  if (!sibling) {
+    return atom_none;
+  }
+
+  return create_node_term(env, node->doc, sibling);
 }
 
 

@@ -128,4 +128,26 @@ defmodule Exogiri.Xml.Node do
       n -> %Exogiri.Xml.Node{ref: n}
     end
   end
+
+  @doc """
+  Return the next sibling of a node.
+  """
+  @spec next_sibling(Exogiri.Xml.Node.t()) :: nil | Exogiri.Xml.Node.t()
+  def next_sibling(%__MODULE__{} = a) do
+    case Exogiri.Xml.Internal.priv_node_next_sibling(a.ref) do
+      :none -> nil
+      n -> %Exogiri.Xml.Node{ref: n}
+    end
+  end
+
+  @doc """
+  Return the previous sibling of a node.
+  """
+  @spec previous_sibling(Exogiri.Xml.Node.t()) :: nil | Exogiri.Xml.Node.t()
+  def previous_sibling(%__MODULE__{} = a) do
+    case Exogiri.Xml.Internal.priv_node_previous_sibling(a.ref) do
+      :none -> nil
+      n -> %Exogiri.Xml.Node{ref: n}
+    end
+  end
 end

@@ -18,4 +18,6 @@ defmodule Exogiri.Xml.Internal do
   defnif priv_node_set_attribute_value(node_ref, attr_name, attr_value)
   defnif priv_node_children(node_ref)
   defnif priv_node_parent(node_ref)
+  defnif priv_node_previous_sibling(node_ref)
+  defnif priv_node_next_sibling(node_ref)
 end
