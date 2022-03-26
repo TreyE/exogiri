@@ -43,9 +43,6 @@ xpath_generic_exception_handler(void *ctx, const char *msg, ...)
 ERL_NIF_TERM xpath_result_to_terms(ErlNifEnv* env, Document* document, xmlXPathObjectPtr xpath) {
   ERL_NIF_TERM pf_atom;
   ERL_NIF_TERM result_list;
-  xmlNodePtr* nsp;
-  ERL_NIF_TERM result_node;
-  int listLength;
   if (XPATH_NODESET != xpath->type) {
     enif_make_existing_atom(
       env,
@@ -60,19 +57,7 @@ ERL_NIF_TERM xpath_result_to_terms(ErlNifEnv* env, Document* document, xmlXPathO
     );
   }
 
-  result_list = enif_make_list(env, 0);
-  nsp = xpath->nodesetval->nodeTab;
-  listLength = xpath->nodesetval->nodeNr;
-
-  for (int i = 0; i<listLength; i++) {
-    result_node = create_node_term(env, document, *nsp);
-    result_list = enif_make_list_cell(
-      env,
-      result_node,
-      result_list
-    );
-    nsp++;
-  }
+  result_list = node_list_to_term(env, document, xpath->nodesetval);
 
   return enif_make_tuple2(
       env,
