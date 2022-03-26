@@ -78,4 +78,12 @@ defmodule Exogiri.Xml.NodeTest do
     "child1" = Exogiri.Xml.Node.local_name(child1)
     "child2" = Exogiri.Xml.Node.local_name(child2)
   end
+
+  test "can get node parent" do
+    {:ok, a} = Exogiri.Xml.Document.from_string("<root xmlns=\"urn:something\"><child1 xmlns=\"urn:something_else\"><child2/></child1></root>")
+    root = Exogiri.Xml.Document.root(a)
+    {:ok, [node]} = Exogiri.Xml.Node.xpath(root,"//ns:child2",%{"ns" => "urn:something_else"})
+    parent = Exogiri.Xml.Node.parent(node)
+    "child1" = Exogiri.Xml.Node.local_name(parent)
+  end
 end

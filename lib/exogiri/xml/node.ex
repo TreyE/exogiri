@@ -57,7 +57,6 @@ defmodule Exogiri.Xml.Node do
     Exogiri.Xml.Internal.priv_node_unlink(a.ref)
   end
 
-
   @doc """
   Add a child node.
 
@@ -117,5 +116,16 @@ defmodule Exogiri.Xml.Node do
         %Exogiri.Xml.Node{ref: n}
       end
     )
+  end
+
+  @doc """
+  Return the parent of a node.
+  """
+  @spec parent(Exogiri.Xml.Node.t()) :: nil | Exogiri.Xml.Node.t()
+  def parent(%__MODULE__{} = a) do
+    case Exogiri.Xml.Internal.priv_node_parent(a.ref) do
+      :none -> nil
+      n -> %Exogiri.Xml.Node{ref: n}
+    end
   end
 end

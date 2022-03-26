@@ -377,6 +377,29 @@ ERL_NIF_TERM priv_node_children(ErlNifEnv* env, int argc, const ERL_NIF_TERM arg
   return node_list_to_term(env, node->doc, set);
 }
 
+ERL_NIF_TERM priv_node_parent(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[]) {
+  Node *node;
+  ErlNifPid self;
+  xmlNodePtr child;
+  xmlNodeSetPtr set;
+
+  if(argc != 1)
+  {
+    return enif_make_badarg(env);
+  }
+  if (!enif_get_resource(env, argv[0],EXN_RES_TYPE,(void **)&node)) {
+    return enif_make_badarg(env);
+  }
+
+  CHECK_STRUCT_OWNER(env, self, node)
+
+  if (!(node->node->parent)) {
+    return atom_none;
+  }
+
+  return create_node_term(env, node->doc, node->node->parent);
+}
+
 
 /*
 // Clone a node and document and reserve reference to document
