@@ -132,9 +132,9 @@ defmodule Exogiri.Xml.Node do
   @doc """
   Return the next sibling of a node.
   """
-  @spec next_sibling(Exogiri.Xml.Node.t()) :: nil | Exogiri.Xml.Node.t()
-  def next_sibling(%__MODULE__{} = a) do
-    case Exogiri.Xml.Internal.priv_node_next_sibling(a.ref) do
+  @spec next_element_sibling(Exogiri.Xml.Node.t()) :: nil | Exogiri.Xml.Node.t()
+  def next_element_sibling(%__MODULE__{} = a) do
+    case Exogiri.Xml.Internal.priv_node_next_element_sibling(a.ref) do
       :none -> nil
       n -> %Exogiri.Xml.Node{ref: n}
     end
@@ -143,9 +143,31 @@ defmodule Exogiri.Xml.Node do
   @doc """
   Return the previous sibling of a node.
   """
-  @spec previous_sibling(Exogiri.Xml.Node.t()) :: nil | Exogiri.Xml.Node.t()
-  def previous_sibling(%__MODULE__{} = a) do
-    case Exogiri.Xml.Internal.priv_node_previous_sibling(a.ref) do
+  @spec previous_element_sibling(Exogiri.Xml.Node.t()) :: nil | Exogiri.Xml.Node.t()
+  def previous_element_sibling(%__MODULE__{} = a) do
+    case Exogiri.Xml.Internal.priv_node_previous_element_sibling(a.ref) do
+      :none -> nil
+      n -> %Exogiri.Xml.Node{ref: n}
+    end
+  end
+
+  @doc """
+  Return the first element child of a node.
+  """
+  @spec first_element_child(Exogiri.Xml.Node.t()) :: nil | Exogiri.Xml.Node.t()
+  def first_element_child(%__MODULE__{} = a) do
+    case Exogiri.Xml.Internal.priv_node_first_element_child(a.ref) do
+      :none -> nil
+      n -> %Exogiri.Xml.Node{ref: n}
+    end
+  end
+
+  @doc """
+  Return the last element child of a node.
+  """
+  @spec last_element_child(Exogiri.Xml.Node.t()) :: nil | Exogiri.Xml.Node.t()
+  def last_element_child(%__MODULE__{} = a) do
+    case Exogiri.Xml.Internal.priv_node_last_element_child(a.ref) do
       :none -> nil
       n -> %Exogiri.Xml.Node{ref: n}
     end

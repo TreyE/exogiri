@@ -61,8 +61,10 @@ static ErlNifFunc nif_funcs[] =
   {"priv_node_set_attribute_value", 3, priv_node_set_attribute_value, 0},
   {"priv_node_children", 1, priv_node_children, ERL_NIF_DIRTY_JOB_CPU_BOUND},
   {"priv_node_parent", 1, priv_node_parent, 0},
-  {"priv_node_next_sibling", 1, priv_node_next_sibling, 0},
-  {"priv_node_previous_sibling", 1, priv_node_previous_sibling, 0}
+  {"priv_node_next_element_sibling", 1, priv_node_next_sibling, 0},
+  {"priv_node_previous_element_sibling", 1, priv_node_previous_sibling, 0},
+  {"priv_node_first_element_child", 1, priv_node_first_element_child, 0},
+  {"priv_node_last_element_child", 1, priv_node_last_element_child, 0}
 };
 
 ERL_NIF_INIT(Elixir.Exogiri.Xml.Internal.Nif,nif_funcs,&load,&reload,&upgrade,NULL)

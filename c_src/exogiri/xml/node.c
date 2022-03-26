@@ -446,6 +446,54 @@ ERL_NIF_TERM priv_node_next_sibling(ErlNifEnv* env, int argc, const ERL_NIF_TERM
   return create_node_term(env, node->doc, sibling);
 }
 
+ERL_NIF_TERM priv_node_last_element_child(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[]) {
+  Node *node;
+  ErlNifPid self;
+  xmlNodePtr child;
+
+  if(argc != 1)
+  {
+    return enif_make_badarg(env);
+  }
+  if (!enif_get_resource(env, argv[0],EXN_RES_TYPE,(void **)&node)) {
+    return enif_make_badarg(env);
+  }
+
+  CHECK_STRUCT_OWNER(env, self, node)
+
+  child = xmlLastElementChild(node->node);
+
+  if (!child) {
+    return atom_none;
+  }
+
+  return create_node_term(env, node->doc, child);
+}
+
+ERL_NIF_TERM priv_node_first_element_child(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[]) {
+  Node *node;
+  ErlNifPid self;
+  xmlNodePtr child;
+
+  if(argc != 1)
+  {
+    return enif_make_badarg(env);
+  }
+  if (!enif_get_resource(env, argv[0],EXN_RES_TYPE,(void **)&node)) {
+    return enif_make_badarg(env);
+  }
+
+  CHECK_STRUCT_OWNER(env, self, node)
+
+  child = xmlFirstElementChild(node->node);
+
+  if (!child) {
+    return atom_none;
+  }
+
+  return create_node_term(env, node->doc, child);
+}
+
 
 /*
 // Clone a node and document and reserve reference to document
