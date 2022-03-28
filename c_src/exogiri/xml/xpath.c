@@ -96,9 +96,6 @@ ERL_NIF_TERM priv_node_run_xpath_with_ns(ErlNifEnv* env, int argc, const ERL_NIF
 
   ns_hash = argv[2];
 
-
-
-
   ctx = xmlXPathNewContext(node->doc->doc);
   register_xml_nses_from_map(ctx, env, ns_hash);
   query = nif_binary_to_xmlChar(&xpath_b);

@@ -103,17 +103,37 @@ defmodule Exogiri.Xml.NodeTest do
     "child2" = Exogiri.Xml.Node.local_name(sibling)
   end
 
-  test "can a first child" do
+  test "can get a first child" do
     {:ok, a} = Exogiri.Xml.Document.from_string("<root xmlns=\"urn:something\"><child1 xmlns=\"urn:something_else\"/><child2/></root>")
     root = Exogiri.Xml.Document.root(a)
     child = Exogiri.Xml.Node.first_element_child(root)
     "child1" = Exogiri.Xml.Node.local_name(child)
   end
 
-  test "can a last child" do
+  test "can get a last child" do
     {:ok, a} = Exogiri.Xml.Document.from_string("<root xmlns=\"urn:something\"><child1 xmlns=\"urn:something_else\"/><child2/></root>")
     root = Exogiri.Xml.Document.root(a)
     child = Exogiri.Xml.Node.last_element_child(root)
     "child2" = Exogiri.Xml.Node.local_name(child)
+  end
+
+  test "can add a next sibling" do
+    {:ok, a} = Exogiri.Xml.Document.from_string("<root xmlns=\"urn:something\"><child1 xmlns=\"urn:something_else\"/><child2/></root>")
+    root = Exogiri.Xml.Document.root(a)
+    child1 = Exogiri.Xml.Node.first_element_child(root)
+    child2 = Exogiri.Xml.Node.last_element_child(root)
+    :ok = Exogiri.Xml.Node.add_next_sibling(child2, child1)
+    new_sibling = Exogiri.Xml.Node.next_element_sibling(child2)
+    "child1" = Exogiri.Xml.Node.local_name(new_sibling)
+  end
+
+  test "can add a previous sibling" do
+    {:ok, a} = Exogiri.Xml.Document.from_string("<root xmlns=\"urn:something\"><child1 xmlns=\"urn:something_else\"/><child2/></root>")
+    root = Exogiri.Xml.Document.root(a)
+    child1 = Exogiri.Xml.Node.first_element_child(root)
+    child2 = Exogiri.Xml.Node.last_element_child(root)
+    :ok = Exogiri.Xml.Node.add_previous_sibling(child1, child2)
+    new_sibling = Exogiri.Xml.Node.previous_element_sibling(child1)
+    "child2" = Exogiri.Xml.Node.local_name(new_sibling)
   end
 end

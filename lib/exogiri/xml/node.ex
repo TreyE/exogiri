@@ -172,4 +172,20 @@ defmodule Exogiri.Xml.Node do
       n -> %Exogiri.Xml.Node{ref: n}
     end
   end
+
+  @doc """
+  Add next sibling to a node.
+  """
+  @spec add_next_sibling(Exogiri.Xml.Node.t(), Exogiri.Xml.Node.t()) :: :ok | :error
+  def add_next_sibling(%__MODULE__{} = a, %__MODULE__{} = sibling) do
+    Exogiri.Xml.Internal.priv_node_add_next_sibling(a.ref, sibling.ref)
+  end
+
+  @doc """
+  Add previous sibling to a node.
+  """
+  @spec add_previous_sibling(Exogiri.Xml.Node.t(), Exogiri.Xml.Node.t()) :: :ok | :error
+  def add_previous_sibling(%__MODULE__{} = a, %__MODULE__{} = sibling) do
+    Exogiri.Xml.Internal.priv_node_add_previous_sibling(a.ref, sibling.ref)
+  end
 end

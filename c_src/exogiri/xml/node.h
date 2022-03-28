@@ -21,3 +21,5 @@ ERL_NIF_TERM priv_node_previous_sibling(ErlNifEnv* env, int argc, const ERL_NIF_
 ERL_NIF_TERM priv_node_next_sibling(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[]);
 ERL_NIF_TERM priv_node_last_element_child(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[]);
 ERL_NIF_TERM priv_node_first_element_child(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[]);
+ERL_NIF_TERM priv_node_add_next_sibling(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[]);
+ERL_NIF_TERM priv_node_add_previous_sibling(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[]);

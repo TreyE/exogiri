@@ -293,6 +293,7 @@ ERL_NIF_TERM priv_node_set_attribute_value(ErlNifEnv* env, int argc, const ERL_N
   return atom_ok;
 }
 
+// TODO: Sanitize content for entities
 ERL_NIF_TERM priv_node_set_content(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[]) {
   Node *node;
   ErlNifPid self;
@@ -494,6 +495,85 @@ ERL_NIF_TERM priv_node_first_element_child(ErlNifEnv* env, int argc, const ERL_N
   return create_node_term(env, node->doc, child);
 }
 
+ERL_NIF_TERM priv_node_add_next_sibling(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[]) {
+  Node *p_node;
+  Node *s_node;
+  xmlNodePtr node_copy;
+  xmlNodePtr new_node;
+  ErlNifPid self;
+
+  if(argc != 2)
+  {
+    return enif_make_badarg(env);
+  }
+  if (!enif_get_resource(env, argv[0],EXN_RES_TYPE,(void **)&p_node)) {
+    return enif_make_badarg(env);
+  }
+  if (!enif_get_resource(env, argv[1],EXN_RES_TYPE,(void **)&s_node)) {
+    return enif_make_badarg(env);
+  }
+
+  CHECK_STRUCT_OWNER(env, self, p_node)
+  CHECK_STRUCT_OWNER(env, self, s_node)
+
+  if (s_node->doc) {
+    enif_release_resource(s_node->doc);
+    xmlUnlinkNode(s_node->node);
+    s_node->doc = NULL;
+  }
+  node_copy = xmlCopyNode(s_node->node, 2);
+  new_node = xmlAddNextSibling(p_node->node, node_copy);
+  if (!new_node) {
+    xmlFreeNode(node_copy);
+    return atom_error;
+  }
+  xmlReconciliateNs(p_node->doc->doc, new_node);
+  s_node->node = new_node;
+  s_node->doc = p_node->doc;
+  enif_keep_resource(p_node->doc);
+
+  return atom_ok;
+}
+
+ERL_NIF_TERM priv_node_add_previous_sibling(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[]) {
+  Node *p_node;
+  Node *s_node;
+  xmlNodePtr node_copy;
+  xmlNodePtr new_node;
+  ErlNifPid self;
+
+  if(argc != 2)
+  {
+    return enif_make_badarg(env);
+  }
+  if (!enif_get_resource(env, argv[0],EXN_RES_TYPE,(void **)&p_node)) {
+    return enif_make_badarg(env);
+  }
+  if (!enif_get_resource(env, argv[1],EXN_RES_TYPE,(void **)&s_node)) {
+    return enif_make_badarg(env);
+  }
+
+  CHECK_STRUCT_OWNER(env, self, p_node)
+  CHECK_STRUCT_OWNER(env, self, s_node)
+
+  if (s_node->doc) {
+    enif_release_resource(s_node->doc);
+    xmlUnlinkNode(s_node->node);
+    s_node->doc = NULL;
+  }
+  node_copy = xmlCopyNode(s_node->node, 2);
+  new_node = xmlAddPrevSibling(p_node->node, node_copy);
+  if (!new_node) {
+    xmlFreeNode(node_copy);
+    return atom_error;
+  }
+  xmlReconciliateNs(p_node->doc->doc, new_node);
+  s_node->node = new_node;
+  s_node->doc = p_node->doc;
+  enif_keep_resource(p_node->doc);
+
+  return atom_ok;
+}
 
 /*
 // Clone a node and document and reserve reference to document
