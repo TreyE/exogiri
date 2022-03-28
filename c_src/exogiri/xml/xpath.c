@@ -30,7 +30,7 @@ void register_xml_nses_from_map(xmlXPathContextPtr ctx, ErlNifEnv* env, const ER
 }
 
 void
-xpath_generic_exception_handler(void *ctx, const char *msg, ...)
+xpath_generic_exception_handler(void __attribute__((unused))*ctx, const char *msg, ...)
 {
   char* message;
 
