@@ -38,12 +38,15 @@ defmodule Exogiri.Xml.Node do
     end
   end
 
-  @spec xpath(Exogiri.Xml.Node.t(), any, any) ::
+  @doc """
+  Run an XPath expression, with namespaces, using the node as the root.
+  """
+  @spec xpath(Exogiri.Xml.Node.t(), String.t(), map()) ::
     unknown_xpath_error() |
     {:error, [term]} |
     {:ok, [t]}
-  def xpath(%__MODULE__{} = a, xpath, nses) do
-    case Exogiri.Xml.Internal.priv_node_run_xpath_with_ns(a.ref, xpath, nses) do
+  def xpath(%__MODULE__{} = a, xpath_expression, nses) when is_binary(xpath_expression) and is_map(nses) do
+    case Exogiri.Xml.Internal.priv_node_run_xpath_with_ns(a.ref, xpath_expression, nses) do
       {:error, a} -> {:error, a}
       {:ok, list} -> {:ok, Enum.map(Enum.reverse(list), fn(n) -> %Exogiri.Xml.Node{ref: n} end)}
     end
