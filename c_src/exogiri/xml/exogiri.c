@@ -2,21 +2,25 @@
 #include "node.h"
 #include "document.h"
 #include "xpath.h"
+#include "schema.h"
 
-static int
-open_resource(ErlNifEnv* env)
+static int open_resource(ErlNifEnv* env)
 {
-    const char* mod = "exogiri_xml_document";
-    const char* name = "Elixir.Exogiri.Xml.Internal.Nif";
-    const char* n_mod = "exogiri_xml_node";
-    const char* n_name = "Elixir.Exogiri.Xml.Internal.Nif";
+    const char* d_mod_str = "Elixir.Exogiri.Xml.Internal.Nif.Document";
+    const char* n_mod_str = "Elixir.Exogiri.Xml.Internal.Nif.Node";
+    const char* s_mod_str = "Elixir.Exogiri.Xml.Internal.Nif.Schema";
+    const char* d_name = "exogiri_xml_document";
+    const char* n_name = "exogiri_xml_node";
+    const char* s_name = "exogiri_xml_schema";
 
     int flags = ERL_NIF_RT_CREATE | ERL_NIF_RT_TAKEOVER;
 
-    EXD_RES_TYPE = enif_open_resource_type(env, mod, name, free_document, flags, NULL);
-    EXN_RES_TYPE = enif_open_resource_type(env, n_mod, n_name, free_node, flags, NULL);
+    EXD_RES_TYPE = enif_open_resource_type(env, d_mod_str, d_name, free_document, flags, NULL);
+    EXN_RES_TYPE = enif_open_resource_type(env, n_mod_str, n_name, free_node, flags, NULL);
+    EXS_RES_TYPE = enif_open_resource_type(env, s_mod_str, s_name, free_schema, flags, NULL);
     if(EXD_RES_TYPE == NULL) return -1;
     if(EXN_RES_TYPE == NULL) return -1;
+    if(EXS_RES_TYPE == NULL) return -1;
     return 0;
 }
 
@@ -66,7 +70,9 @@ static ErlNifFunc nif_funcs[] =
   {"priv_node_first_element_child", 1, priv_node_first_element_child, 0},
   {"priv_node_last_element_child", 1, priv_node_last_element_child, 0},
   {"priv_node_add_next_sibling", 2, priv_node_add_next_sibling, 0},
-  {"priv_node_add_previous_sibling", 2, priv_node_add_previous_sibling, 0}
+  {"priv_node_add_previous_sibling", 2, priv_node_add_previous_sibling, 0},
+  {"priv_schema_from_string", 1, priv_schema_from_string, ERL_NIF_DIRTY_JOB_CPU_BOUND},
+  {"priv_schema_from_string_with_path", 2, priv_schema_from_string_with_path, ERL_NIF_DIRTY_JOB_CPU_BOUND}
 };
 
 ERL_NIF_INIT(Elixir.Exogiri.Xml.Internal.Nif,nif_funcs,&load,&reload,&upgrade,NULL)

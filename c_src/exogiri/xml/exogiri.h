@@ -6,6 +6,7 @@
 #include <libxml/xpath.h>
 #include <libxml/xpathinternals.h>
 #include <libxml/c14n.h>
+#include <libxml/xmlschemas.h>
 
 extern ERL_NIF_TERM atom_ok;
 extern ERL_NIF_TERM atom_error;
@@ -13,6 +14,7 @@ extern ERL_NIF_TERM atom_none;
 
 ErlNifResourceType* EXD_RES_TYPE;
 ErlNifResourceType* EXN_RES_TYPE;
+ErlNifResourceType* EXS_RES_TYPE;
 
 typedef struct {
   ErlNifPid* owner;
@@ -30,6 +32,12 @@ typedef struct {
   ErlNifEnv* env;
   ERL_NIF_TERM errors;
 } Errors;
+
+typedef struct {
+  ErlNifPid* owner;
+  xmlSchemaPtr schema;
+  xmlDocPtr doc;
+} Schema;
 
 void Exogiri_error_array_pusher(void *ctx, xmlErrorPtr error);
 xmlChar *nif_binary_to_xmlChar(ErlNifBinary * bin);

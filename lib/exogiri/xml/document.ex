@@ -1,4 +1,8 @@
 defmodule Exogiri.Xml.Document do
+  @moduledoc """
+  Encapsulates an XML document.
+  """
+
   defstruct [:ref]
 
   @typedoc "The Document type."

@@ -1,4 +1,7 @@
 defmodule Exogiri.Xml.Node do
+  @moduledoc """
+  Encapsulates an XML element node.
+  """
 
   defstruct [:ref]
 

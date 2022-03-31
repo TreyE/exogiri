@@ -10,6 +10,7 @@ defmodule Exogiri.MixProject do
       elixir: "~> 1.9",
       description: "Nokogiri.  But like, for Elixir.",
       start_permanent: Mix.env() == :prod,
+      elixirc_paths: elixirc_paths(Mix.env),
       deps: deps(),
       docs: docs(),
       package: package(),
@@ -47,4 +48,7 @@ defmodule Exogiri.MixProject do
       {:ex_doc, "~> 0.22", only: :dev, runtime: false}
     ]
   end
+
+  defp elixirc_paths(:test), do: ["lib","test/support"]
+  defp elixirc_paths(_), do: ["lib"]
 end

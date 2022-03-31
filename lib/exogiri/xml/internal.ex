@@ -24,4 +24,7 @@ defmodule Exogiri.Xml.Internal do
   defnif priv_node_first_element_child(node_ref)
   defnif priv_node_add_next_sibling(node_ref, sibling_ref)
   defnif priv_node_add_previous_sibling(node_ref, sibling_ref)
+
+  defnif priv_schema_from_string(string)
+  defnif priv_schema_from_string_with_path(string, path)
 end

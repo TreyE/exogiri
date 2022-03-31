@@ -528,6 +528,7 @@ ERL_NIF_TERM priv_node_add_next_sibling(ErlNifEnv* env, int argc, const ERL_NIF_
     return atom_error;
   }
   xmlReconciliateNs(p_node->doc->doc, new_node);
+  xmlFreeNode(s_node->node);
   s_node->node = new_node;
   s_node->doc = p_node->doc;
   enif_keep_resource(p_node->doc);
@@ -568,6 +569,7 @@ ERL_NIF_TERM priv_node_add_previous_sibling(ErlNifEnv* env, int argc, const ERL_
     return atom_error;
   }
   xmlReconciliateNs(p_node->doc->doc, new_node);
+  xmlFreeNode(s_node->node);
   s_node->node = new_node;
   s_node->doc = p_node->doc;
   enif_keep_resource(p_node->doc);
