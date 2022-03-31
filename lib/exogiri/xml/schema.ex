@@ -41,6 +41,19 @@ defmodule Exogiri.Xml.Schema do
     end
   end
 
+  @doc """
+  Validate a document against a schema.
+  """
+  @spec validate_document(t(), Exogiri.Xml.Document.t()) :: {:error, :validation_context_creation_failure | [String.t]} | :ok
+  def validate_document(%__MODULE__{} = schema, %Exogiri.Xml.Document{} = doc) do
+    case Exogiri.Xml.Internal.priv_schema_validate_doc(schema.ref, doc.ref) do
+      {:error, :validation_context_creation_failure} -> {:error, :validation_context_creation_failure}
+      {:error, errs} -> {:error, format_errors(errs)}
+      :ok -> :ok
+    end
+  end
+
+  @spec format_errors([any()]) :: [String.t]
   defp format_errors(errs) do
     errs
      |> Enum.reverse()

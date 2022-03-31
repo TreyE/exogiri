@@ -5,6 +5,7 @@ defmodule Exogiri.Xml.SchemaTest do
   @basic_schema """
   <?xml version="1.0" encoding="UTF-8" ?>
   <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+    <xsd:element name="root" type="xsd:string"/>
   </xsd:schema>
   """
 
@@ -18,6 +19,13 @@ defmodule Exogiri.Xml.SchemaTest do
   <?xml version="1.0" encoding="UTF-8" ?>
   <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" targetNamespace="urn:some_namespace">
     <xsd:include schemaLocation="./included.xsd"/>
+  </xsd:schema>
+  """
+
+  @simple_namespaced_schema """
+  <?xml version="1.0" encoding="UTF-8" ?>
+  <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" targetNamespace="urn:some_namespace">
+    <xsd:element name="root" type="xsd:string"/>
   </xsd:schema>
   """
 
@@ -39,5 +47,29 @@ defmodule Exogiri.Xml.SchemaTest do
              "../../support/xsd/base.xsd"
            )
     {:ok, %Exogiri.Xml.Schema{}} = Exogiri.Xml.Schema.from_string(@bogus_inclusion_schema, path)
+  end
+
+  test "validates a simple schema against an invalid document - no namespaces" do
+    {:ok, basic_schema} = Exogiri.Xml.Schema.from_string(@basic_schema)
+    {:ok, doc} = Exogiri.Xml.Document.from_string("<wrong/>")
+    {:error, ["Element 'wrong': No matching global declaration available for the validation root.\n"]} = Exogiri.Xml.Schema.validate_document(basic_schema, doc)
+  end
+
+  test "validates a simple schema against a valid document - no namespaces" do
+    {:ok, basic_schema} = Exogiri.Xml.Schema.from_string(@basic_schema)
+    {:ok, doc} = Exogiri.Xml.Document.from_string("<root/>")
+    :ok = Exogiri.Xml.Schema.validate_document(basic_schema, doc)
+  end
+
+  test "validates a simple schema against an invalid document - namespaced" do
+    {:ok, basic_schema} = Exogiri.Xml.Schema.from_string(@simple_namespaced_schema)
+    {:ok, doc} = Exogiri.Xml.Document.from_string("<root/>")
+    {:error, ["Element 'root': No matching global declaration available for the validation root.\n"]} = Exogiri.Xml.Schema.validate_document(basic_schema, doc)
+  end
+
+  test "validates a simple schema against a valid document - namespaced" do
+    {:ok, basic_schema} = Exogiri.Xml.Schema.from_string(@simple_namespaced_schema)
+    {:ok, doc} = Exogiri.Xml.Document.from_string("<root xmlns=\"urn:some_namespace\"/>")
+    :ok = Exogiri.Xml.Schema.validate_document(basic_schema, doc)
   end
 end

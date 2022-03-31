@@ -27,4 +27,5 @@ defmodule Exogiri.Xml.Internal do
 
   defnif priv_schema_from_string(string)
   defnif priv_schema_from_string_with_path(string, path)
+  defnif priv_schema_validate_doc(schema_ref,doc_ref)
 end
