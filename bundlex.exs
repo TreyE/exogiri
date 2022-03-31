@@ -11,7 +11,7 @@ defmodule Exogiri.BundlexProject do
     [
       exogiri_xml_internal: [
         sources: ["xml/exogiri.c", "xml/document.c", "xml/node.c", "xml/xpath.c", "xml/errors.c", "xml/utils.c", "xml/schema.c"],
-        compiler_flags: ["-I/include/", "-I/usr/include/", "-I/usr/include/libxml2/"],
+        libs: ["xml2"],
         interface: :nif
       ]
     ]

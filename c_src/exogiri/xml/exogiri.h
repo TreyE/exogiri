@@ -4,7 +4,7 @@
 #include <libxml/parser.h>
 #include <libxml/tree.h>
 #include <libxml/xpath.h>
-#include <libxml/xpathinternals.h>
+#include <libxml/xpathInternals.h>
 #include <libxml/c14n.h>
 #include <libxml/xmlschemas.h>
 
