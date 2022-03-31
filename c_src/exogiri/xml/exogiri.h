@@ -8,10 +8,6 @@
 #include <libxml/c14n.h>
 #include <libxml/xmlschemas.h>
 
-extern ERL_NIF_TERM atom_ok;
-extern ERL_NIF_TERM atom_error;
-extern ERL_NIF_TERM atom_none;
-
 ErlNifResourceType* EXD_RES_TYPE;
 ErlNifResourceType* EXN_RES_TYPE;
 ErlNifResourceType* EXS_RES_TYPE;
@@ -47,3 +43,7 @@ ERL_NIF_TERM xml_char_to_binary_term(ErlNifEnv* env, xmlChar *content);
   if (enif_compare_pids(&pid_var,struct_var->owner) != 0) { \
     return enif_make_badarg(env); \
   }
+
+#define ASSIGN_OK(env, atom_target) enif_make_existing_atom(env, "ok", &atom_target, ERL_NIF_LATIN1)
+#define ASSIGN_ERROR(env, atom_target) enif_make_existing_atom(env, "error", &atom_target, ERL_NIF_LATIN1)
+#define ASSIGN_NONE(env, atom_target) enif_make_existing_atom(env, "none", &atom_target, ERL_NIF_LATIN1)

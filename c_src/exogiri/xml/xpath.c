@@ -43,6 +43,7 @@ xpath_generic_exception_handler(void __attribute__((unused))*ctx, const char *ms
 ERL_NIF_TERM xpath_result_to_terms(ErlNifEnv* env, Document* document, xmlXPathObjectPtr xpath) {
   ERL_NIF_TERM pf_atom;
   ERL_NIF_TERM result_list;
+  ERL_NIF_TERM atom_result;
   if (XPATH_NODESET != xpath->type) {
     enif_make_existing_atom(
       env,
@@ -50,18 +51,20 @@ ERL_NIF_TERM xpath_result_to_terms(ErlNifEnv* env, Document* document, xmlXPathO
       &pf_atom,
       ERL_NIF_LATIN1
     );
+    ASSIGN_ERROR(env, atom_result);
     return enif_make_tuple2(
       env,
-      atom_error,
+      atom_result,
       pf_atom
     );
   }
 
   result_list = node_list_to_term(env, document, xpath->nodesetval);
 
+  ASSIGN_OK(env, atom_result);
   return enif_make_tuple2(
       env,
-      atom_ok,
+      atom_result,
       result_list
     );
 }
@@ -77,6 +80,7 @@ ERL_NIF_TERM priv_node_run_xpath_with_ns(ErlNifEnv* env, int argc, const ERL_NIF
   xmlXPathObjectPtr xpath;
   Errors* errors;
   ERL_NIF_TERM result;
+  ERL_NIF_TERM atom_result;
   unsigned int err_len;
 
   if (argc != 3) {
@@ -112,9 +116,10 @@ ERL_NIF_TERM priv_node_run_xpath_with_ns(ErlNifEnv* env, int argc, const ERL_NIF
   xmlSetGenericErrorFunc(NULL, NULL);
   enif_get_list_length(env,errors->errors,&err_len);
   if (err_len > 0) {
+    ASSIGN_ERROR(env, atom_result);
     result = enif_make_tuple2(
         env,
-        atom_error,
+        atom_result,
         errors->errors
     );
     enif_free(errors);
@@ -128,10 +133,11 @@ ERL_NIF_TERM priv_node_run_xpath_with_ns(ErlNifEnv* env, int argc, const ERL_NIF
   if (xpath == NULL) {
     enif_free(errors);
     xmlErrorPtr error = xmlGetLastError();
+    ASSIGN_ERROR(env, atom_result);
     if (error) {
       result = enif_make_tuple2(
         env,
-        atom_error,
+        atom_result,
         enif_make_list1(
           env,
           enif_make_string(env, error->message, ERL_NIF_LATIN1)
@@ -146,7 +152,7 @@ ERL_NIF_TERM priv_node_run_xpath_with_ns(ErlNifEnv* env, int argc, const ERL_NIF
       );
       result = enif_make_tuple2(
         env,
-        atom_error,
+        atom_result,
         pf_atom
       );
     }

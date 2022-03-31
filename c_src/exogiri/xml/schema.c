@@ -16,6 +16,7 @@ ERL_NIF_TERM priv_schema_from_string(ErlNifEnv* env, int argc, const ERL_NIF_TER
   xmlSchemaPtr schema;
   ERL_NIF_TERM pf_atom;
   ERL_NIF_TERM result;
+  ERL_NIF_TERM atom_result;
   unsigned int err_len;
 
   if(argc != 1)
@@ -44,9 +45,10 @@ ERL_NIF_TERM priv_schema_from_string(ErlNifEnv* env, int argc, const ERL_NIF_TER
       xmlSchemaFree(schema);
     }
     xmlSchemaFreeParserCtxt(ctx);
+    ASSIGN_ERROR(env, atom_result);
     result = enif_make_tuple2(
         env,
-        atom_error,
+        atom_result,
         parse_errors->errors
     );
     enif_free(parse_errors);
@@ -60,9 +62,10 @@ ERL_NIF_TERM priv_schema_from_string(ErlNifEnv* env, int argc, const ERL_NIF_TER
       &pf_atom,
       ERL_NIF_LATIN1
     );
+    ASSIGN_ERROR(env, atom_result);
     result = enif_make_tuple2(
       env,
-      atom_error,
+      atom_result,
       pf_atom
     );
     enif_free(parse_errors);
@@ -78,9 +81,10 @@ ERL_NIF_TERM priv_schema_from_string(ErlNifEnv* env, int argc, const ERL_NIF_TER
   schemaRes->doc = NULL;
   result = enif_make_resource(env, schemaRes);
   enif_release_resource(schemaRes);
+  ASSIGN_OK(env, atom_result);
   return enif_make_tuple2(
     env,
-    atom_ok,
+    atom_result,
     result
   );
 }
@@ -96,6 +100,7 @@ ERL_NIF_TERM priv_schema_from_string_with_path(ErlNifEnv* env, int argc, const E
   xmlChar* path;
   ERL_NIF_TERM pf_atom;
   ERL_NIF_TERM result;
+  ERL_NIF_TERM atom_result;
   unsigned int err_len;
 
   if(argc != 2)
@@ -134,9 +139,10 @@ ERL_NIF_TERM priv_schema_from_string_with_path(ErlNifEnv* env, int argc, const E
     if (doc) {
       xmlFreeDoc(doc);
     }
+    ASSIGN_ERROR(env, atom_result);
     result = enif_make_tuple2(
         env,
-        atom_error,
+        atom_result,
         parse_errors->errors
     );
     enif_free(parse_errors);
@@ -151,9 +157,10 @@ ERL_NIF_TERM priv_schema_from_string_with_path(ErlNifEnv* env, int argc, const E
       &pf_atom,
       ERL_NIF_LATIN1
     );
+    ASSIGN_ERROR(env, atom_result);
     result = enif_make_tuple2(
       env,
-      atom_error,
+      atom_result,
       pf_atom
     );
     enif_free(parse_errors);
@@ -170,9 +177,10 @@ ERL_NIF_TERM priv_schema_from_string_with_path(ErlNifEnv* env, int argc, const E
       &pf_atom,
       ERL_NIF_LATIN1
     );
+    ASSIGN_ERROR(env, atom_result);
     result = enif_make_tuple2(
       env,
-      atom_error,
+      atom_result,
       pf_atom
     );
     enif_free(parse_errors);
@@ -191,9 +199,10 @@ ERL_NIF_TERM priv_schema_from_string_with_path(ErlNifEnv* env, int argc, const E
       xmlSchemaFree(schema);
     }
     xmlSchemaFreeParserCtxt(ctx);
+    ASSIGN_ERROR(env, atom_result);
     result = enif_make_tuple2(
         env,
-        atom_error,
+        atom_result,
         parse_errors->errors
     );
     enif_free(parse_errors);
@@ -209,9 +218,10 @@ ERL_NIF_TERM priv_schema_from_string_with_path(ErlNifEnv* env, int argc, const E
       &pf_atom,
       ERL_NIF_LATIN1
     );
+    ASSIGN_ERROR(env, atom_result);
     result = enif_make_tuple2(
       env,
-      atom_error,
+      atom_result,
       pf_atom
     );
     enif_free(parse_errors);
@@ -227,9 +237,10 @@ ERL_NIF_TERM priv_schema_from_string_with_path(ErlNifEnv* env, int argc, const E
   schemaRes->doc = doc;
   result = enif_make_resource(env, schemaRes);
   enif_release_resource(schemaRes);
+  ASSIGN_OK(env, atom_result);
   return enif_make_tuple2(
     env,
-    atom_ok,
+    atom_result,
     result
   );
 }
@@ -241,6 +252,7 @@ ERL_NIF_TERM priv_schema_validate_doc(ErlNifEnv* env, int argc, const ERL_NIF_TE
   Errors* parse_errors;
   ERL_NIF_TERM pf_atom;
   ERL_NIF_TERM result;
+  ERL_NIF_TERM atom_result;
   xmlSchemaValidCtxtPtr valid_ctxt;
   unsigned int err_len;
 
@@ -271,9 +283,10 @@ ERL_NIF_TERM priv_schema_validate_doc(ErlNifEnv* env, int argc, const ERL_NIF_TE
       &pf_atom,
       ERL_NIF_LATIN1
     );
+    ASSIGN_ERROR(env, atom_result);
     result = enif_make_tuple2(
       env,
-      atom_error,
+      atom_result,
       pf_atom
     );
     enif_free(parse_errors);
@@ -291,9 +304,10 @@ ERL_NIF_TERM priv_schema_validate_doc(ErlNifEnv* env, int argc, const ERL_NIF_TE
   enif_get_list_length(env, parse_errors->errors, &err_len);
   if (err_len > 0) {
     xmlSchemaFreeValidCtxt(valid_ctxt);
+    ASSIGN_ERROR(env, atom_result);
     result = enif_make_tuple2(
         env,
-        atom_error,
+        atom_result,
         parse_errors->errors
     );
     enif_free(parse_errors);
@@ -302,5 +316,6 @@ ERL_NIF_TERM priv_schema_validate_doc(ErlNifEnv* env, int argc, const ERL_NIF_TE
 
   xmlSchemaFreeValidCtxt(valid_ctxt);
   enif_free(parse_errors);
-  return atom_ok;
+  ASSIGN_OK(env, atom_result);
+  return atom_result;
 }

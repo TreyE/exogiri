@@ -72,6 +72,7 @@ ERL_NIF_TERM namespace_as_tuple(ErlNifEnv* env, xmlNsPtr ns) {
 ERL_NIF_TERM priv_node_namespace(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[]) {
   Node *node;
   xmlNsPtr ns;
+  ERL_NIF_TERM atom_none;
 
   if(argc != 1)
   {
@@ -84,6 +85,7 @@ ERL_NIF_TERM priv_node_namespace(ErlNifEnv* env, int argc, const ERL_NIF_TERM ar
   if (ns) {
     return namespace_as_tuple(env, ns);
   }
+  ASSIGN_NONE(env, atom_none);
   return atom_none;
 }
 
@@ -141,6 +143,7 @@ ERL_NIF_TERM create_node_term(ErlNifEnv* env, Document* document, xmlNodePtr np)
 ERL_NIF_TERM priv_node_unlink(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[]) {
   Node *node;
   ErlNifPid self;
+  ERL_NIF_TERM atom_ok;
 
   if(argc != 1)
   {
@@ -157,6 +160,7 @@ ERL_NIF_TERM priv_node_unlink(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[
     node->doc = NULL;
   }
 
+  ASSIGN_OK(env, atom_ok);
   return atom_ok;
 }
 
@@ -164,6 +168,7 @@ ERL_NIF_TERM priv_node_add_child(ErlNifEnv* env, int argc, const ERL_NIF_TERM ar
   Node *p_node;
   Node *c_node;
   ErlNifPid self;
+  ERL_NIF_TERM atom_ok;
 
   if(argc != 2)
   {
@@ -189,6 +194,7 @@ ERL_NIF_TERM priv_node_add_child(ErlNifEnv* env, int argc, const ERL_NIF_TERM ar
   c_node->doc = p_node->doc;
   enif_keep_resource(p_node->doc);
 
+  ASSIGN_OK(env, atom_ok);
   return atom_ok;
 }
 
@@ -197,6 +203,7 @@ ERL_NIF_TERM priv_node_content(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv
   ERL_NIF_TERM result;
   xmlChar *content;
   ErlNifPid self;
+  ERL_NIF_TERM atom_none;
 
   if(argc != 1)
   {
@@ -210,6 +217,7 @@ ERL_NIF_TERM priv_node_content(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv
 
   content = xmlNodeGetContent(node->node);
   if (!content) {
+    ASSIGN_NONE(env, atom_none);
     return atom_none;
   }
   result = xml_char_to_binary_term(env, content);
@@ -224,6 +232,7 @@ ERL_NIF_TERM priv_node_attribute_value(ErlNifEnv* env, int argc, const ERL_NIF_T
   ERL_NIF_TERM result;
   xmlChar *attr_name;
   xmlChar *attr_val;
+  ERL_NIF_TERM atom_none;
 
   if(argc != 2)
   {
@@ -243,6 +252,7 @@ ERL_NIF_TERM priv_node_attribute_value(ErlNifEnv* env, int argc, const ERL_NIF_T
   attr_val = xmlGetProp(node->node, attr_name);
   if (!attr_val) {
     enif_free(attr_name);
+    ASSIGN_NONE(env, atom_none);
     return atom_none;
   }
   result = xml_char_to_binary_term(env, attr_val);
@@ -260,6 +270,7 @@ ERL_NIF_TERM priv_node_set_attribute_value(ErlNifEnv* env, int argc, const ERL_N
   xmlChar *attr_name;
   xmlChar *attr_val;
   xmlAttrPtr attr;
+  ERL_NIF_TERM atom_result;
 
   if(argc != 3)
   {
@@ -284,13 +295,16 @@ ERL_NIF_TERM priv_node_set_attribute_value(ErlNifEnv* env, int argc, const ERL_N
   if (!attr) {
     enif_free(attr_name);
     enif_free(attr_val);
-    return atom_error;
+    ASSIGN_ERROR(env, atom_result);
+    return atom_result;
   }
 
   enif_free(attr_val);
   enif_free(attr_name);
 
-  return atom_ok;
+  ASSIGN_OK(env, atom_result);
+
+  return atom_result;
 }
 
 // TODO: Sanitize content for entities
@@ -299,6 +313,7 @@ ERL_NIF_TERM priv_node_set_content(ErlNifEnv* env, int argc, const ERL_NIF_TERM 
   ErlNifPid self;
   ErlNifBinary content_b;
   xmlChar *content_val;
+  ERL_NIF_TERM atom_ok;
 
   if(argc != 2)
   {
@@ -318,6 +333,7 @@ ERL_NIF_TERM priv_node_set_content(ErlNifEnv* env, int argc, const ERL_NIF_TERM 
 
   enif_free(content_val);
 
+  ASSIGN_OK(env, atom_ok);
   return atom_ok;
 }
 
@@ -381,6 +397,7 @@ ERL_NIF_TERM priv_node_children(ErlNifEnv* env, int argc, const ERL_NIF_TERM arg
 ERL_NIF_TERM priv_node_parent(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[]) {
   Node *node;
   ErlNifPid self;
+  ERL_NIF_TERM atom_none;
 
   if(argc != 1)
   {
@@ -393,6 +410,7 @@ ERL_NIF_TERM priv_node_parent(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[
   CHECK_STRUCT_OWNER(env, self, node)
 
   if (!(node->node->parent)) {
+    ASSIGN_NONE(env, atom_none);
     return atom_none;
   }
 
@@ -403,6 +421,7 @@ ERL_NIF_TERM priv_node_previous_sibling(ErlNifEnv* env, int argc, const ERL_NIF_
   Node *node;
   ErlNifPid self;
   xmlNodePtr sibling;
+  ERL_NIF_TERM atom_none;
 
   if(argc != 1)
   {
@@ -417,6 +436,7 @@ ERL_NIF_TERM priv_node_previous_sibling(ErlNifEnv* env, int argc, const ERL_NIF_
   sibling = xmlPreviousElementSibling(node->node);
 
   if (!sibling) {
+    ASSIGN_NONE(env, atom_none);
     return atom_none;
   }
 
@@ -427,6 +447,7 @@ ERL_NIF_TERM priv_node_next_sibling(ErlNifEnv* env, int argc, const ERL_NIF_TERM
   Node *node;
   ErlNifPid self;
   xmlNodePtr sibling;
+  ERL_NIF_TERM atom_none;
 
   if(argc != 1)
   {
@@ -441,6 +462,7 @@ ERL_NIF_TERM priv_node_next_sibling(ErlNifEnv* env, int argc, const ERL_NIF_TERM
   sibling = xmlNextElementSibling(node->node);
 
   if (!sibling) {
+    ASSIGN_NONE(env, atom_none);
     return atom_none;
   }
 
@@ -451,6 +473,7 @@ ERL_NIF_TERM priv_node_last_element_child(ErlNifEnv* env, int argc, const ERL_NI
   Node *node;
   ErlNifPid self;
   xmlNodePtr child;
+  ERL_NIF_TERM atom_none;
 
   if(argc != 1)
   {
@@ -465,6 +488,7 @@ ERL_NIF_TERM priv_node_last_element_child(ErlNifEnv* env, int argc, const ERL_NI
   child = xmlLastElementChild(node->node);
 
   if (!child) {
+    ASSIGN_NONE(env, atom_none);
     return atom_none;
   }
 
@@ -475,6 +499,7 @@ ERL_NIF_TERM priv_node_first_element_child(ErlNifEnv* env, int argc, const ERL_N
   Node *node;
   ErlNifPid self;
   xmlNodePtr child;
+  ERL_NIF_TERM atom_none;
 
   if(argc != 1)
   {
@@ -489,6 +514,7 @@ ERL_NIF_TERM priv_node_first_element_child(ErlNifEnv* env, int argc, const ERL_N
   child = xmlFirstElementChild(node->node);
 
   if (!child) {
+    ASSIGN_NONE(env, atom_none);
     return atom_none;
   }
 
@@ -501,6 +527,7 @@ ERL_NIF_TERM priv_node_add_next_sibling(ErlNifEnv* env, int argc, const ERL_NIF_
   xmlNodePtr node_copy;
   xmlNodePtr new_node;
   ErlNifPid self;
+  ERL_NIF_TERM atom_result;
 
   if(argc != 2)
   {
@@ -525,7 +552,8 @@ ERL_NIF_TERM priv_node_add_next_sibling(ErlNifEnv* env, int argc, const ERL_NIF_
   new_node = xmlAddNextSibling(p_node->node, node_copy);
   if (!new_node) {
     xmlFreeNode(node_copy);
-    return atom_error;
+    ASSIGN_ERROR(env, atom_result);
+    return atom_result;
   }
   xmlReconciliateNs(p_node->doc->doc, new_node);
   xmlFreeNode(s_node->node);
@@ -533,7 +561,8 @@ ERL_NIF_TERM priv_node_add_next_sibling(ErlNifEnv* env, int argc, const ERL_NIF_
   s_node->doc = p_node->doc;
   enif_keep_resource(p_node->doc);
 
-  return atom_ok;
+  ASSIGN_OK(env, atom_result);
+  return atom_result;
 }
 
 ERL_NIF_TERM priv_node_add_previous_sibling(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[]) {
@@ -542,6 +571,7 @@ ERL_NIF_TERM priv_node_add_previous_sibling(ErlNifEnv* env, int argc, const ERL_
   xmlNodePtr node_copy;
   xmlNodePtr new_node;
   ErlNifPid self;
+  ERL_NIF_TERM atom_result;
 
   if(argc != 2)
   {
@@ -566,7 +596,8 @@ ERL_NIF_TERM priv_node_add_previous_sibling(ErlNifEnv* env, int argc, const ERL_
   new_node = xmlAddPrevSibling(p_node->node, node_copy);
   if (!new_node) {
     xmlFreeNode(node_copy);
-    return atom_error;
+    ASSIGN_ERROR(env, atom_result);
+    return atom_result;
   }
   xmlReconciliateNs(p_node->doc->doc, new_node);
   xmlFreeNode(s_node->node);
@@ -574,7 +605,8 @@ ERL_NIF_TERM priv_node_add_previous_sibling(ErlNifEnv* env, int argc, const ERL_
   s_node->doc = p_node->doc;
   enif_keep_resource(p_node->doc);
 
-  return atom_ok;
+    ASSIGN_OK(env, atom_result);
+    return atom_result;
 }
 
 /*

@@ -18,6 +18,7 @@ ERL_NIF_TERM priv_from_string(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[
   Errors* parse_errors;
   xmlChar *in_str;
   unsigned int error_size;
+  ERL_NIF_TERM atom_result;
 
   xmlDocPtr doc;
 
@@ -42,9 +43,10 @@ ERL_NIF_TERM priv_from_string(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[
   if (error_size > 0) {
     xmlFreeDoc(doc);
     result = parse_errors->errors;
+    ASSIGN_ERROR(env, atom_result);
     result_tuple = enif_make_tuple2(
       env,
-      atom_error,
+      atom_result,
       result
     );
     enif_free(parse_errors);
@@ -61,9 +63,10 @@ ERL_NIF_TERM priv_from_string(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[
       &result,
       ERL_NIF_LATIN1
     );
+    ASSIGN_ERROR(env, atom_result);
     result_tuple = enif_make_tuple2(
       env,
-      atom_error,
+      atom_result,
       result
     );
     return result_tuple;
@@ -75,9 +78,10 @@ ERL_NIF_TERM priv_from_string(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[
   docRes->doc = doc;
   result = enif_make_resource(env, docRes);
   enif_release_resource(docRes);
+  ASSIGN_OK(env, atom_result);
   result_tuple = enif_make_tuple2(
       env,
-      atom_ok,
+      atom_result,
       result
     );
   return result_tuple;
@@ -145,6 +149,7 @@ ERL_NIF_TERM priv_doc_canonicalize(ErlNifEnv* env, int argc, const ERL_NIF_TERM 
   ErlNifPid self;
   int docSize;
   xmlChar* dumpedDoc;
+  ERL_NIF_TERM atom_error;
 
   if(argc != 1)
   {
@@ -165,6 +170,7 @@ ERL_NIF_TERM priv_doc_canonicalize(ErlNifEnv* env, int argc, const ERL_NIF_TERM 
     &dumpedDoc
   );
   if (dumpedDoc < 0) {
+    ASSIGN_ERROR(env, atom_error);
     return atom_error;
   }
   result = xml_char_to_binary_term(env, dumpedDoc);
