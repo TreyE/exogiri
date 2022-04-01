@@ -13,6 +13,9 @@ defmodule Exogiri.MixProject do
       elixirc_paths: elixirc_paths(Mix.env),
       deps: deps(),
       docs: docs(),
+      dialyzer: [
+        plt_file: {:no_warn, "priv/plts/dialyzer.plt"}
+      ],
       package: package(),
       compilers: [:bundlex] ++ Mix.compilers
     ]

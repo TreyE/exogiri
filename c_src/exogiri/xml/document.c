@@ -169,7 +169,7 @@ ERL_NIF_TERM priv_doc_canonicalize(ErlNifEnv* env, int argc, const ERL_NIF_TERM 
     0,
     &dumpedDoc
   );
-  if (dumpedDoc < 0) {
+  if (docSize < 0) {
     ASSIGN_ERROR(env, atom_error);
     return atom_error;
   }
