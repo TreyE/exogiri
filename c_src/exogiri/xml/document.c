@@ -2,7 +2,7 @@
 #include "exogiri.h"
 #include "node.h"
 
-void free_document(ErlNifEnv* __attribute__((unused))env, void* obj)
+void free_document(__attribute__((unused))ErlNifEnv* env, void* obj)
 {
   Document* document = (Document *)obj;
   enif_free(document->owner);

@@ -2,7 +2,7 @@
 
 #include "exogiri.h"
 
-void free_node(ErlNifEnv* __attribute__((unused))env, void* obj) {
+void free_node(__attribute__((unused))ErlNifEnv* env, void* obj) {
   Node* node = (Node*)obj;
   enif_free(node->owner);
   if (node->doc) {

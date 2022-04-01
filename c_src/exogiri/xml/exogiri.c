@@ -25,7 +25,7 @@ static int open_resource(ErlNifEnv* env)
 }
 
 static int
-load(ErlNifEnv* env, void** __attribute__((unused))priv, ERL_NIF_TERM __attribute__((unused))load_info)
+load(ErlNifEnv* env, __attribute__((unused))void** priv, __attribute__((unused))ERL_NIF_TERM load_info)
 {
     if(open_resource(env) == -1) return -1;
 
@@ -34,7 +34,7 @@ load(ErlNifEnv* env, void** __attribute__((unused))priv, ERL_NIF_TERM __attribut
 
 // Erlang requires that we re-open resources on re-initialisation.
 static int
-reload(ErlNifEnv* env, void** __attribute__((unused))priv, ERL_NIF_TERM __attribute__((unused))load_info)
+reload(ErlNifEnv* env, __attribute__((unused))void** priv, __attribute__((unused))ERL_NIF_TERM load_info)
 {
     if(open_resource(env) == -1) return -1;
     return 0;
