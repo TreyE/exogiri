@@ -1,6 +1,6 @@
 #include "exogiri.h"
 
-void free_schema(ErlNifEnv* __attribute__((unused))env, void* obj) {
+void free_schema(__attribute__((unused))ErlNifEnv* env, void* obj) {
   Schema* schema = (Schema*)obj;
   xmlSchemaFree(schema->schema);
   if (schema->doc) {

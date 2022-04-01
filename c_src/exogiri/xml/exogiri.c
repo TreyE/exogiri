@@ -41,7 +41,7 @@ reload(ErlNifEnv* env, __attribute__((unused))void** priv, __attribute__((unused
 }
 
 static int
-upgrade(ErlNifEnv* env, void** __attribute__((unused))priv, void** __attribute__((unused))old_priv, ERL_NIF_TERM __attribute__((unused)) load_info)
+upgrade(ErlNifEnv* env, __attribute__((unused))void** priv, __attribute__((unused))void** old_priv, __attribute__((unused))ERL_NIF_TERM load_info)
 {
     if(open_resource(env) == -1) return -1;
     return 0;
