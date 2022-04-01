@@ -1,3 +1,4 @@
+name: Tests
 on:
   - push
   - pull_request
@@ -15,6 +16,7 @@ jobs:
             otp: 23.0
           - elixir: 1.13.0
             otp: 24.1
+            dialyzer: true
     steps:
       - name: Install System Dependencies
         run: |
@@ -27,3 +29,21 @@ jobs:
           elixir-version: ${{matrix.elixir}}
       - run: mix deps.get
       - run: mix test --trace
+      - name: Restore PLT cache
+        uses: actions/cache@v2
+        if: ${{ matrix.dialyzer }}
+        id: plt_cache
+        with:
+          key: |
+            ${{ runner.os }}-${{ matrix.elixir }}-${{ matrix.otp }}-plt
+          restore-keys: |
+            ${{ runner.os }}-${{ matrix.elixir }}-${{ matrix.otp }}-plt
+          path: |
+            priv/plts
+      # Create PLTs if no cache was found
+      - name: Create PLTs
+        if: ${{ matrix.dialyzer && steps.plt_cache.outputs.cache-hit != 'true' }}
+        run: mix dialyzer --plt
+      - name: Run dialyzer
+        if: ${{ matrix.dialyzer }}
+        run: mix dialyzer

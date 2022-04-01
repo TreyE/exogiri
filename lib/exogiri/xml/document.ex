@@ -6,7 +6,7 @@ defmodule Exogiri.Xml.Document do
   defstruct [:ref]
 
   @typedoc "The Document type."
-  @opaque t :: %__MODULE__{ref: reference()}
+  @type t :: %__MODULE__{ref: reference()}
 
   @doc """
   Build a document from a string.

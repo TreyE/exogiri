@@ -6,7 +6,7 @@ defmodule Exogiri.Xml.Node do
   defstruct [:ref]
 
   @typedoc "The Node type."
-  @opaque t :: %__MODULE__{ref: reference()}
+  @type t :: %__MODULE__{ref: reference()}
 
   @typedoc """
   You've either managed to bork the XPath parser (rare), OR my C code is bad (put your money here).

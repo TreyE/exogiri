@@ -45,6 +45,7 @@ defmodule Exogiri.MixProject do
   defp deps do
     [
       {:bundlex, "~> 0.5.1"},
+      {:dialyxir, "~> 1.0", only: [:dev], runtime: false},
       {:ex_doc, "~> 0.22", only: :dev, runtime: false}
     ]
   end
