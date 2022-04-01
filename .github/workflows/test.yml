@@ -35,9 +35,9 @@ jobs:
         id: plt_cache
         with:
           key: |
-            ${{ runner.os }}-${{ matrix.elixir }}-${{ matrix.otp }}-plt
+            ${{ runner.os }}-${{ matrix.elixir }}-${{ matrix.otp }}-plt-${{ hashFiles('mix.lock') }}
           restore-keys: |
-            ${{ runner.os }}-${{ matrix.elixir }}-${{ matrix.otp }}-plt
+            ${{ runner.os }}-${{ matrix.elixir }}-${{ matrix.otp }}-plt-${{ hashFiles('mix.lock') }}
           path: |
             priv/plts
       # Create PLTs if no cache was found
