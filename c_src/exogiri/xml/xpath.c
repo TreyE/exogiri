@@ -34,11 +34,8 @@ void register_xml_nses_from_map(xmlXPathContextPtr ctx, ErlNifEnv* env, const ER
 void
 xpath_generic_exception_handler(void __attribute__((unused))*ctx, const char *msg, ...)
 {
-  char* message;
-
   va_list args;
   va_start(args, msg);
-  vasprintf(&message, msg, args);
   va_end(args);
 }
 
