@@ -11,6 +11,7 @@ defmodule Exogiri.Xml.Document do
   @doc """
   New document with no namespaces and a named root element.
   """
+  @spec new_without_ns(String.t) :: {t(), Exogiri.Xml.Node.t()}
   def new_without_ns(root_name) when is_binary(root_name) do
     {d_ref, n_ref} = Exogiri.Xml.Internal.priv_doc_new_root_no_ns(root_name)
     {%__MODULE__{ref: d_ref}, %Exogiri.Xml.Node{ref: n_ref}}
@@ -19,6 +20,8 @@ defmodule Exogiri.Xml.Document do
   @doc """
   New document with a namespace and a named root element.
   """
+  @spec new_with_ns(String.t, nil | String.t, String.t) ::
+          {t(), Exogiri.Xml.Node.t()}
   def new_with_ns(root_name, nil, root_href) when
     is_binary(root_name) and
     is_binary(root_href) do

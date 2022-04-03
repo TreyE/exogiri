@@ -16,6 +16,7 @@ defmodule Exogiri.Xml.Node do
   @doc """
   Create a new node with no namespace.
   """
+  @spec new_no_ns(Exogiri.Xml.Document.t(), String.t) :: t()
   def new_no_ns(%Exogiri.Xml.Document{} = doc, node_name) when is_binary(node_name) do
     ref = Exogiri.Xml.Internal.priv_node_create_no_ns(doc.ref, node_name)
     %__MODULE__{ref: ref}
@@ -24,6 +25,7 @@ defmodule Exogiri.Xml.Node do
   @doc """
   Create a new node with no namespace.
   """
+  @spec new_with_ns(Exogiri.Xml.Document.t(), String.t, nil | String.t, String.t) :: t()
   def new_with_ns(%Exogiri.Xml.Document{} = doc, node_name, nil, ns_href) when
    is_binary(node_name) and
    is_binary(ns_href) do
