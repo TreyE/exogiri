@@ -1,6 +1,7 @@
 #include <string.h>
 
 #include "exogiri.h"
+#include "namespace.h"
 
 void free_node(__attribute__((unused))ErlNifEnv* env, void* obj) {
   Node* node = (Node*)obj;
@@ -134,7 +135,9 @@ ERL_NIF_TERM create_node_term(ErlNifEnv* env, Document* document, xmlNodePtr np)
   nodeRes->owner = self;
   nodeRes->node = np;
   nodeRes->doc = document;
-  enif_keep_resource(document);
+  if (document) {
+    enif_keep_resource(document);
+  }
   result = enif_make_resource(env, nodeRes);
   enif_release_resource(nodeRes);
   return result;
@@ -190,7 +193,7 @@ ERL_NIF_TERM priv_node_add_child(ErlNifEnv* env, int argc, const ERL_NIF_TERM ar
     c_node->doc = NULL;
   }
   xmlAddChild(p_node->node, c_node->node);
-  xmlReconciliateNs(p_node->doc->doc, c_node->node);
+  recon_ns_after_move(p_node->doc->doc, c_node->node, 0);
   c_node->doc = p_node->doc;
   enif_keep_resource(p_node->doc);
 
@@ -555,7 +558,7 @@ ERL_NIF_TERM priv_node_add_next_sibling(ErlNifEnv* env, int argc, const ERL_NIF_
     ASSIGN_ERROR(env, atom_result);
     return atom_result;
   }
-  xmlReconciliateNs(p_node->doc->doc, new_node);
+  recon_ns_after_move(p_node->doc->doc, new_node, 0);
   xmlFreeNode(s_node->node);
   s_node->node = new_node;
   s_node->doc = p_node->doc;
@@ -599,7 +602,7 @@ ERL_NIF_TERM priv_node_add_previous_sibling(ErlNifEnv* env, int argc, const ERL_
     ASSIGN_ERROR(env, atom_result);
     return atom_result;
   }
-  xmlReconciliateNs(p_node->doc->doc, new_node);
+  recon_ns_after_move(p_node->doc->doc, new_node, 0);
   xmlFreeNode(s_node->node);
   s_node->node = new_node;
   s_node->doc = p_node->doc;
@@ -609,31 +612,83 @@ ERL_NIF_TERM priv_node_add_previous_sibling(ErlNifEnv* env, int argc, const ERL_
     return atom_result;
 }
 
-/*
-// Clone a node and document and reserve reference to document
-Node* clone_node(Node* inNode) {
-  xmlDocPtr doc_copy;
-  xmlNodePtr np_copy;
-  Node* node_copy;
-  xmlXPathContextPtr ctx;
-  xmlChar *path;
-  xmlXPathObjectPtr xpath;
+ERL_NIF_TERM priv_node_create_no_ns(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[]) {
+  Document *document;
+  xmlNodePtr node;
+  ErlNifPid self;
+  ERL_NIF_TERM node_term;
+  ErlNifBinary nb;
+  xmlChar *nodeName;
 
-  path = xmlGetNodePath(inNode->node);
-  node_copy = enif_alloc(sizeof(Node));
-  doc_copy = xmlCopyDoc(inNode->doc->doc,1);
+  if(argc != 2)
+  {
+    return enif_make_badarg(env);
+  }
+  if (!enif_get_resource(env, argv[0],EXD_RES_TYPE,(void **)&document)) {
+    return enif_make_badarg(env);
+  }
+  if (!enif_inspect_binary(env, argv[1], &nb)) {
+    return enif_make_badarg(env);
+  }
 
-  ctx = xmlXPathNewContext(doc_copy);
+  CHECK_STRUCT_OWNER(env, self, document)
+  
+  nodeName = nif_binary_to_xmlChar(&nb);
+  node = xmlNewDocNode(document->doc, NULL, nodeName, NULL);
+  node_term = create_node_term(env, document, node);
+  enif_free(nodeName);
+  return node_term;
+}
 
-  xpath = xmlXPathEvalExpression(path, ctx);
-  np_copy = *(xpath->nodesetval->nodeTab);
+ERL_NIF_TERM priv_node_create_with_ns(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[]) {
+  Document *document;
+  xmlNodePtr node;
+  ErlNifPid self;
+  ERL_NIF_TERM node_term;
+  ErlNifBinary nb;
+  ErlNifBinary nb_ns_abbrev;
+  ErlNifBinary nb_ns_href;
+  xmlChar *nodeName;
+  xmlChar *nsAbbrev;
+  xmlChar *nsHref;
+  xmlNsPtr ns;
 
-  xmlXPathFreeNodeSet(xpath->nodesetval);
-  xmlXPathFreeNodeSetList(xpath);
-  xmlXPathFreeContext(ctx);
+  if(argc != 4)
+  {
+    return enif_make_badarg(env);
+  }
+  if (!enif_get_resource(env, argv[0],EXD_RES_TYPE,(void **)&document)) {
+    return enif_make_badarg(env);
+  }
+  if (!enif_inspect_binary(env, argv[1], &nb)) {
+    return enif_make_badarg(env);
+  }
+  if (!enif_inspect_binary(env, argv[2], &nb_ns_abbrev)) {
+    return enif_make_badarg(env);
+  }
+  if (!enif_inspect_binary(env, argv[3], &nb_ns_href)) {
+    return enif_make_badarg(env);
+  }
 
-  node_copy->doc = doc_copy;
-  node_copy->node = np_copy;
+  CHECK_STRUCT_OWNER(env, self, document)
+  
+  nodeName = nif_binary_to_xmlChar(&nb);
+  nsHref = nif_binary_to_xmlChar(&nb_ns_href);
+  nsAbbrev = nif_binary_to_xmlChar(&nb_ns_abbrev);
 
-  return node_copy;
-}*/
+  if (xmlStrlen(nsAbbrev) < 1) {
+    enif_free(nsAbbrev);
+    nsAbbrev = NULL;
+  }
+
+  node = xmlNewDocNode(document->doc, NULL, nodeName, NULL);
+  ns = xmlNewNs(node, nsHref, nsAbbrev);
+  xmlSetNs(node, ns);
+  node_term = create_node_term(env, document, node);
+  enif_free(nodeName);
+  enif_free(nsHref);
+  if (nsAbbrev) {
+    enif_free(nsAbbrev);
+  }
+  return node_term;
+}

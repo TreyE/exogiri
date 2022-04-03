@@ -14,6 +14,31 @@ defmodule Exogiri.Xml.Node do
   @type unknown_xpath_error :: {:error, :unknown_error}
 
   @doc """
+  Create a new node with no namespace.
+  """
+  def new_no_ns(%Exogiri.Xml.Document{} = doc, node_name) when is_binary(node_name) do
+    ref = Exogiri.Xml.Internal.priv_node_create_no_ns(doc.ref, node_name)
+    %__MODULE__{ref: ref}
+  end
+
+  @doc """
+  Create a new node with no namespace.
+  """
+  def new_with_ns(%Exogiri.Xml.Document{} = doc, node_name, nil, ns_href) when
+   is_binary(node_name) and
+   is_binary(ns_href) do
+    ref = Exogiri.Xml.Internal.priv_node_create_with_ns(doc.ref, node_name, "", ns_href)
+    %__MODULE__{ref: ref}
+  end
+  def new_with_ns(%Exogiri.Xml.Document{} = doc, node_name, ns_abbrev, ns_href) when
+    is_binary(node_name) and
+    is_binary(ns_abbrev) and
+    is_binary(ns_href) do
+    ref = Exogiri.Xml.Internal.priv_node_create_with_ns(doc.ref, node_name, ns_abbrev, ns_href)
+    %__MODULE__{ref: ref}
+  end
+
+  @doc """
   Get the local name of a Node.
   """
   @spec local_name(Exogiri.Xml.Node.t()) :: binary()
@@ -27,6 +52,7 @@ defmodule Exogiri.Xml.Node do
   def namespace(%__MODULE__{} = a) do
     case Exogiri.Xml.Internal.priv_node_namespace(a.ref) do
       :none -> nil
+      {"", href} -> {nil, href}
       a -> a
     end
   end
@@ -88,7 +114,7 @@ defmodule Exogiri.Xml.Node do
   Set the node content as a string.
   """
   @spec set_content(Exogiri.Xml.Node.t(), String.t) :: :ok
-  def set_content(%__MODULE__{} = a, content) do
+  def set_content(%__MODULE__{} = a, content) when is_binary(content) do
     Exogiri.Xml.Internal.priv_node_set_content(a.ref, content)
   end
 
@@ -96,7 +122,7 @@ defmodule Exogiri.Xml.Node do
   Retrieve the value of an attribute on the node by name.
   """
   @spec attribute_value(Exogiri.Xml.Node.t(), String.t) :: String.t | nil
-  def attribute_value(%__MODULE__{} = a, attr_name) do
+  def attribute_value(%__MODULE__{} = a, attr_name) when is_binary(attr_name) do
     case Exogiri.Xml.Internal.priv_node_attribute_value(a.ref, attr_name) do
       :none -> nil
       a -> a
@@ -107,7 +133,7 @@ defmodule Exogiri.Xml.Node do
   Set the value of an attribute on the node by name.
   """
   @spec set_attribute_value(Exogiri.Xml.Node.t(), String.t, String.t) :: :ok
-  def set_attribute_value(%__MODULE__{} = a, attr_name, attr_value) do
+  def set_attribute_value(%__MODULE__{} = a, attr_name, attr_value) when is_binary(attr_name) and is_binary(attr_value) do
     Exogiri.Xml.Internal.priv_node_set_attribute_value(a.ref, attr_name, attr_value)
   end
 

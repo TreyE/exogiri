@@ -178,3 +178,112 @@ ERL_NIF_TERM priv_doc_canonicalize(ErlNifEnv* env, int argc, const ERL_NIF_TERM 
 
   return result;
 }
+
+ERL_NIF_TERM priv_doc_new_root_no_ns(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[]) {
+  ErlNifBinary nb;
+  ERL_NIF_TERM result_tuple;
+  ERL_NIF_TERM document_term;
+  ERL_NIF_TERM node_term;
+  ErlNifPid *self;
+  xmlDocPtr doc;
+  xmlNodePtr node;
+  Document *docRes;
+  xmlChar *nodeName;
+
+  if(argc != 1)
+  {
+    return enif_make_badarg(env);
+  }
+  if (!enif_inspect_binary(env, argv[0], &nb)) {
+    return enif_make_badarg(env);
+  }
+
+  self = (ErlNifPid *)enif_alloc(sizeof(ErlNifPid));
+  enif_self(env, self);
+
+  doc = xmlNewDoc((xmlChar*)&"1.0");
+
+  docRes = (Document *)enif_alloc_resource(EXD_RES_TYPE, sizeof(Document));
+  docRes->owner = self;
+  docRes->doc = doc;
+  document_term = enif_make_resource(env, docRes);
+  enif_release_resource(docRes);
+  nodeName = nif_binary_to_xmlChar(&nb);
+  node = xmlNewDocNode(doc, NULL, nodeName, NULL);
+  xmlDocSetRootElement(doc, node);
+  node_term = create_node_term(env, docRes, node);
+  result_tuple = enif_make_tuple2(
+      env,
+      document_term,
+      node_term
+  );
+  enif_free(nodeName);
+  return result_tuple;
+}
+
+ERL_NIF_TERM priv_doc_new_root_with_ns(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[]) {
+  ErlNifBinary nb;
+  ErlNifBinary nb_ns_abbrev;
+  ErlNifBinary nb_ns_href;
+  ERL_NIF_TERM result_tuple;
+  ERL_NIF_TERM document_term;
+  ERL_NIF_TERM node_term;
+  ErlNifPid *self;
+  xmlDocPtr doc;
+  xmlNodePtr node;
+  Document *docRes;
+  xmlChar *nodeName;
+  xmlChar *nsAbbrev;
+  xmlChar *nsHref;
+  xmlNsPtr ns;
+
+  if(argc != 3)
+  {
+    return enif_make_badarg(env);
+  }
+  if (!enif_inspect_binary(env, argv[0], &nb)) {
+    return enif_make_badarg(env);
+  }
+  if (!enif_inspect_binary(env, argv[1], &nb_ns_abbrev)) {
+    return enif_make_badarg(env);
+  }
+  if (!enif_inspect_binary(env, argv[2], &nb_ns_href)) {
+    return enif_make_badarg(env);
+  }
+
+  self = (ErlNifPid *)enif_alloc(sizeof(ErlNifPid));
+  enif_self(env, self);
+
+  nsAbbrev = nif_binary_to_xmlChar(&nb_ns_abbrev);
+  nsHref = nif_binary_to_xmlChar(&nb_ns_href);
+  nodeName = nif_binary_to_xmlChar(&nb);
+
+  if (xmlStrlen(nsAbbrev) < 1) {
+    enif_free(nsAbbrev);
+    nsAbbrev = NULL;
+  }
+
+  doc = xmlNewDoc((xmlChar*)&"1.0");
+
+  docRes = (Document *)enif_alloc_resource(EXD_RES_TYPE, sizeof(Document));
+  docRes->owner = self;
+  docRes->doc = doc;
+  document_term = enif_make_resource(env, docRes);
+  enif_release_resource(docRes);
+  node = xmlNewDocNode(doc, NULL, nodeName, NULL);
+  ns = xmlNewNs(node, nsHref, nsAbbrev);
+  xmlSetNs(node, ns);
+  xmlDocSetRootElement(doc, node);
+  node_term = create_node_term(env, docRes, node);
+  result_tuple = enif_make_tuple2(
+      env,
+      document_term,
+      node_term
+  );
+  enif_free(nodeName);
+  if (nsAbbrev) {
+    enif_free(nsAbbrev);
+  }
+  enif_free(nsHref);
+  return result_tuple;
+}

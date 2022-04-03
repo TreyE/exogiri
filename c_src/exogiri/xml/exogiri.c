@@ -69,11 +69,15 @@ static ErlNifFunc nif_funcs[] =
   {"priv_node_previous_element_sibling", 1, priv_node_previous_sibling, 0},
   {"priv_node_first_element_child", 1, priv_node_first_element_child, 0},
   {"priv_node_last_element_child", 1, priv_node_last_element_child, 0},
-  {"priv_node_add_next_sibling", 2, priv_node_add_next_sibling, 0},
-  {"priv_node_add_previous_sibling", 2, priv_node_add_previous_sibling, 0},
+  {"priv_node_add_next_sibling", 2, priv_node_add_next_sibling, ERL_NIF_DIRTY_JOB_CPU_BOUND},
+  {"priv_node_add_previous_sibling", 2, priv_node_add_previous_sibling, ERL_NIF_DIRTY_JOB_CPU_BOUND},
+  {"priv_node_create_no_ns", 2, priv_node_create_no_ns, 0},
+  {"priv_node_create_with_ns", 4, priv_node_create_with_ns, ERL_NIF_DIRTY_JOB_CPU_BOUND},
   {"priv_schema_from_string", 1, priv_schema_from_string, ERL_NIF_DIRTY_JOB_CPU_BOUND},
   {"priv_schema_from_string_with_path", 2, priv_schema_from_string_with_path, ERL_NIF_DIRTY_JOB_CPU_BOUND},
-  {"priv_schema_validate_doc", 2, priv_schema_validate_doc, ERL_NIF_DIRTY_JOB_CPU_BOUND}
+  {"priv_schema_validate_doc", 2, priv_schema_validate_doc, ERL_NIF_DIRTY_JOB_CPU_BOUND},
+  {"priv_doc_new_root_no_ns", 1, priv_doc_new_root_no_ns, 0},
+  {"priv_doc_new_root_with_ns", 3, priv_doc_new_root_with_ns, 0}
 };
 
 ERL_NIF_INIT(Elixir.Exogiri.Xml.Internal.Nif,nif_funcs,&load,&reload,&upgrade,NULL)

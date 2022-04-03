@@ -13,7 +13,7 @@ defmodule Exogiri.Xml.NodeTest do
     {:ok, a} = Exogiri.Xml.Document.from_string("<hello xmlns=\"urn:something\"></hello>")
     root = Exogiri.Xml.Document.root(a)
     "hello" = Exogiri.Xml.Node.local_name(root)
-    {"", "urn:something"} = Exogiri.Xml.Node.namespace(root)
+    {nil, "urn:something"} = Exogiri.Xml.Node.namespace(root)
   end
 
   # TODO: Fix the ordering of the results so the test will always pass.

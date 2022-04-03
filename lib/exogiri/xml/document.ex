@@ -9,10 +9,35 @@ defmodule Exogiri.Xml.Document do
   @type t :: %__MODULE__{ref: reference()}
 
   @doc """
+  New document with no namespaces and a named root element.
+  """
+  def new_without_ns(root_name) when is_binary(root_name) do
+    {d_ref, n_ref} = Exogiri.Xml.Internal.priv_doc_new_root_no_ns(root_name)
+    {%__MODULE__{ref: d_ref}, %Exogiri.Xml.Node{ref: n_ref}}
+  end
+
+  @doc """
+  New document with a namespace and a named root element.
+  """
+  def new_with_ns(root_name, nil, root_href) when
+    is_binary(root_name) and
+    is_binary(root_href) do
+    {d_ref, n_ref} = Exogiri.Xml.Internal.priv_doc_new_root_with_ns(root_name, "", root_href)
+    {%__MODULE__{ref: d_ref}, %Exogiri.Xml.Node{ref: n_ref}}
+  end
+  def new_with_ns(root_name, root_abbrev, root_href) when
+    is_binary(root_name) and
+    is_binary(root_abbrev) and
+    is_binary(root_href) do
+    {d_ref, n_ref} = Exogiri.Xml.Internal.priv_doc_new_root_with_ns(root_name, root_abbrev, root_href)
+    {%__MODULE__{ref: d_ref}, %Exogiri.Xml.Node{ref: n_ref}}
+  end
+
+  @doc """
   Build a document from a string.
   """
   @spec from_string(String.t) :: {:error, :parse_failed | [String.t]} | {:ok, t}
-  def from_string(string) do
+  def from_string(string) when is_binary(string) do
     case Exogiri.Xml.Internal.priv_from_string(string) do
       {:error, :parse_failed} -> {:error, :parse_failed}
       {:error, errs} -> {:error, format_errors(errs)}
