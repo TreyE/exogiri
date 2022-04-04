@@ -15,6 +15,7 @@ ErlNifResourceType* EXS_RES_TYPE;
 typedef struct {
   ErlNifPid* owner;
   xmlDocPtr doc;
+  struct UnlinkedNode *unlinked_nodes;
 } Document;
 
 typedef struct {

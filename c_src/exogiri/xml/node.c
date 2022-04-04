@@ -2,15 +2,13 @@
 
 #include "exogiri.h"
 #include "namespace.h"
+#include "unlinked_node.h"
 
 void free_node(__attribute__((unused))ErlNifEnv* env, void* obj) {
   Node* node = (Node*)obj;
   enif_free(node->owner);
   if (node->doc) {
     enif_release_resource(node->doc);
-  }
-  if (node->doc == NULL) {
-    xmlFreeNode(node->node);
   }
 }
 
@@ -158,9 +156,8 @@ ERL_NIF_TERM priv_node_unlink(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[
   CHECK_STRUCT_OWNER(env, self, node)
 
   if (node->doc) {
-    enif_release_resource(node->doc);
     xmlUnlinkNode(node->node);
-    node->doc = NULL;
+    node->doc->unlinked_nodes = add_unlinked_node(node->doc->unlinked_nodes, node->node);
   }
 
   ASSIGN_OK(env, atom_ok);
@@ -188,12 +185,15 @@ ERL_NIF_TERM priv_node_add_child(ErlNifEnv* env, int argc, const ERL_NIF_TERM ar
   CHECK_STRUCT_OWNER(env, self, c_node)
 
   if (c_node->doc) {
+    c_node->doc->unlinked_nodes = remove_unlinked_node(c_node->doc->unlinked_nodes, c_node->node);
     enif_release_resource(c_node->doc);
+  }
+  if (c_node->node->parent) {
     xmlUnlinkNode(c_node->node);
-    c_node->doc = NULL;
   }
   xmlAddChild(p_node->node, c_node->node);
-  recon_ns_after_move(p_node->doc->doc, c_node->node, 0);
+  recon_ns_after_move(p_node->doc->doc, c_node->node, 1);
+  p_node->doc->unlinked_nodes = remove_unlinked_node(p_node->doc->unlinked_nodes, c_node->node);
   c_node->doc = p_node->doc;
   enif_keep_resource(p_node->doc);
 
@@ -310,12 +310,12 @@ ERL_NIF_TERM priv_node_set_attribute_value(ErlNifEnv* env, int argc, const ERL_N
   return atom_result;
 }
 
-// TODO: Sanitize content for entities
 ERL_NIF_TERM priv_node_set_content(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[]) {
   Node *node;
   ErlNifPid self;
   ErlNifBinary content_b;
   xmlChar *content_val;
+  xmlNodePtr first_element_child;
   ERL_NIF_TERM atom_ok;
 
   if(argc != 2)
@@ -328,12 +328,19 @@ ERL_NIF_TERM priv_node_set_content(ErlNifEnv* env, int argc, const ERL_NIF_TERM 
   if (!enif_get_resource(env, argv[0],EXN_RES_TYPE,(void **)&node)) {
     return enif_make_badarg(env);
   }
+  /* Children are supposed to be unlinked prior to this by elixir - it prevents
+   * anything from getting "surprise deallocated" out from under us
+   */
+  first_element_child = xmlFirstElementChild(node->node);
+  if(first_element_child) {
+    return enif_make_badarg(env);
+  }
 
   CHECK_STRUCT_OWNER(env, self, node)
 
   content_val = nif_binary_to_xmlChar(&content_b);
-  xmlNodeSetContent(node->node, content_val);
 
+  xmlNodeSetContent(node->node, content_val);
   enif_free(content_val);
 
   ASSIGN_OK(env, atom_ok);
@@ -370,7 +377,7 @@ ERL_NIF_TERM priv_node_children(ErlNifEnv* env, int argc, const ERL_NIF_TERM arg
   Node *node;
   ErlNifPid self;
   xmlNodePtr child;
-  xmlNodeSetPtr set;
+  xmlNodeSetPtr set = NULL;
 
   if(argc != 1)
   {
@@ -387,11 +394,19 @@ ERL_NIF_TERM priv_node_children(ErlNifEnv* env, int argc, const ERL_NIF_TERM arg
     return enif_make_list(env, 0);
   }
 
-  set = xmlXPathNodeSetCreate(child);
-  child = child->next;
   while (NULL != child) {
-    xmlXPathNodeSetAddUnique(set, child);
+    if (child->type == XML_ELEMENT_NODE) {
+      if (set) {
+        xmlXPathNodeSetAddUnique(set, child);
+      } else {
+        set = xmlXPathNodeSetCreate(child);
+      }
+    }
     child = child->next;
+  }
+
+  if (!set) {
+    return enif_make_list(env, 0);
   }
 
   return node_list_to_term(env, node->doc, set);
@@ -547,9 +562,11 @@ ERL_NIF_TERM priv_node_add_next_sibling(ErlNifEnv* env, int argc, const ERL_NIF_
   CHECK_STRUCT_OWNER(env, self, s_node)
 
   if (s_node->doc) {
+    s_node->doc->unlinked_nodes = remove_unlinked_node(s_node->doc->unlinked_nodes, s_node->node);
     enif_release_resource(s_node->doc);
+  }
+  if (s_node->node->parent) {
     xmlUnlinkNode(s_node->node);
-    s_node->doc = NULL;
   }
   node_copy = xmlCopyNode(s_node->node, 2);
   new_node = xmlAddNextSibling(p_node->node, node_copy);
@@ -558,7 +575,8 @@ ERL_NIF_TERM priv_node_add_next_sibling(ErlNifEnv* env, int argc, const ERL_NIF_
     ASSIGN_ERROR(env, atom_result);
     return atom_result;
   }
-  recon_ns_after_move(p_node->doc->doc, new_node, 0);
+  recon_ns_after_move(p_node->doc->doc, new_node, 1);
+  p_node->doc->unlinked_nodes = remove_unlinked_node(p_node->doc->unlinked_nodes, s_node->node);
   xmlFreeNode(s_node->node);
   s_node->node = new_node;
   s_node->doc = p_node->doc;
@@ -591,9 +609,11 @@ ERL_NIF_TERM priv_node_add_previous_sibling(ErlNifEnv* env, int argc, const ERL_
   CHECK_STRUCT_OWNER(env, self, s_node)
 
   if (s_node->doc) {
+    s_node->doc->unlinked_nodes = remove_unlinked_node(s_node->doc->unlinked_nodes, s_node->node);
     enif_release_resource(s_node->doc);
+  }
+  if (s_node->node->parent) {
     xmlUnlinkNode(s_node->node);
-    s_node->doc = NULL;
   }
   node_copy = xmlCopyNode(s_node->node, 2);
   new_node = xmlAddPrevSibling(p_node->node, node_copy);
@@ -602,7 +622,8 @@ ERL_NIF_TERM priv_node_add_previous_sibling(ErlNifEnv* env, int argc, const ERL_
     ASSIGN_ERROR(env, atom_result);
     return atom_result;
   }
-  recon_ns_after_move(p_node->doc->doc, new_node, 0);
+  recon_ns_after_move(p_node->doc->doc, new_node, 1);
+  p_node->doc->unlinked_nodes = remove_unlinked_node(p_node->doc->unlinked_nodes, s_node->node);
   xmlFreeNode(s_node->node);
   s_node->node = new_node;
   s_node->doc = p_node->doc;
@@ -635,6 +656,7 @@ ERL_NIF_TERM priv_node_create_no_ns(ErlNifEnv* env, int argc, const ERL_NIF_TERM
   
   nodeName = nif_binary_to_xmlChar(&nb);
   node = xmlNewDocNode(document->doc, NULL, nodeName, NULL);
+  document->unlinked_nodes = add_unlinked_node(document->unlinked_nodes, node);
   node_term = create_node_term(env, document, node);
   enif_free(nodeName);
   return node_term;
@@ -684,6 +706,7 @@ ERL_NIF_TERM priv_node_create_with_ns(ErlNifEnv* env, int argc, const ERL_NIF_TE
   node = xmlNewDocNode(document->doc, NULL, nodeName, NULL);
   ns = xmlNewNs(node, nsHref, nsAbbrev);
   xmlSetNs(node, ns);
+  document->unlinked_nodes = add_unlinked_node(document->unlinked_nodes, node);
   node_term = create_node_term(env, document, node);
   enif_free(nodeName);
   enif_free(nsHref);

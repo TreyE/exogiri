@@ -1,12 +1,15 @@
 #include <string.h>
 #include "exogiri.h"
 #include "node.h"
+#include "unlinked_node.h"
 
 void free_document(__attribute__((unused))ErlNifEnv* env, void* obj)
 {
   Document* document = (Document *)obj;
   enif_free(document->owner);
   xmlFreeDoc(document->doc);
+  free_unlinked_nodes(document->unlinked_nodes);
+  document->unlinked_nodes = NULL;
 }
 
 ERL_NIF_TERM priv_from_string(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
@@ -76,6 +79,7 @@ ERL_NIF_TERM priv_from_string(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[
   Document* docRes = (Document *)enif_alloc_resource(EXD_RES_TYPE, sizeof(Document));
   docRes->owner = self;
   docRes->doc = doc;
+  docRes->unlinked_nodes = NULL;
   result = enif_make_resource(env, docRes);
   enif_release_resource(docRes);
   ASSIGN_OK(env, atom_result);
@@ -206,6 +210,7 @@ ERL_NIF_TERM priv_doc_new_root_no_ns(ErlNifEnv* env, int argc, const ERL_NIF_TER
   docRes = (Document *)enif_alloc_resource(EXD_RES_TYPE, sizeof(Document));
   docRes->owner = self;
   docRes->doc = doc;
+  docRes->unlinked_nodes = NULL;
   document_term = enif_make_resource(env, docRes);
   enif_release_resource(docRes);
   nodeName = nif_binary_to_xmlChar(&nb);
@@ -268,6 +273,7 @@ ERL_NIF_TERM priv_doc_new_root_with_ns(ErlNifEnv* env, int argc, const ERL_NIF_T
   docRes = (Document *)enif_alloc_resource(EXD_RES_TYPE, sizeof(Document));
   docRes->owner = self;
   docRes->doc = doc;
+  docRes->unlinked_nodes = NULL;
   document_term = enif_make_resource(env, docRes);
   enif_release_resource(docRes);
   node = xmlNewDocNode(doc, NULL, nodeName, NULL);

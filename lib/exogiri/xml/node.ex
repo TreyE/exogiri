@@ -117,6 +117,10 @@ defmodule Exogiri.Xml.Node do
   """
   @spec set_content(Exogiri.Xml.Node.t(), String.t) :: :ok
   def set_content(%__MODULE__{} = a, content) when is_binary(content) do
+    node_children = children(a)
+    Enum.each(node_children, fn(n) ->
+      unlink(n)
+    end)
     Exogiri.Xml.Internal.priv_node_set_content(a.ref, content)
   end
 
@@ -140,7 +144,7 @@ defmodule Exogiri.Xml.Node do
   end
 
   @doc """
-  Return the children of a node.
+  Return the element children of a node.
   """
   @spec children(Exogiri.Xml.Node.t()) :: [t()]
   def children(%__MODULE__{} = a) do

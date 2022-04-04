@@ -67,8 +67,20 @@ defmodule Exogiri.Xml.NodeTest do
     {:ok, a} = Exogiri.Xml.Document.from_string("<root xmlns=\"urn:something\"><child1>THE CONTENT</child1></root>")
     root = Exogiri.Xml.Document.root(a)
     {:ok, [node]} = Exogiri.Xml.Node.xpath(root,"//ns:child1",%{"ns" => "urn:something"})
-    :ok = Exogiri.Xml.Node.set_content(node, "THE NEW CONTENT")
-    "THE NEW CONTENT" = Exogiri.Xml.Node.content(node)
+    :ok = Exogiri.Xml.Node.set_content(node, "THE NEW CONTENT<")
+    "THE NEW CONTENT<" = Exogiri.Xml.Node.content(node)
+  end
+
+  test "can set node content and not SEGV" do
+    {:ok, a} = Exogiri.Xml.Document.from_string("<root xmlns=\"urn:something\"><child1><child2>THE CONTENT</child2></child1></root>")
+    root = Exogiri.Xml.Document.root(a)
+    {:ok, [node]} = Exogiri.Xml.Node.xpath(root,"//ns:child1",%{"ns" => "urn:something"})
+    {:ok, [child2]} = Exogiri.Xml.Node.xpath(root,"//ns:child2",%{"ns" => "urn:something"})
+    "THE CONTENT" = Exogiri.Xml.Node.content(child2)
+    :ok = Exogiri.Xml.Node.set_content(node, "THE NEW CONTENT<")
+    IO.inspect Exogiri.Xml.Document.to_xml(a)
+    "THE NEW CONTENT<" = Exogiri.Xml.Node.content(node)
+    "THE CONTENT" = Exogiri.Xml.Node.content(child2)
   end
 
   test "can get node children" do

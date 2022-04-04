@@ -13,7 +13,7 @@ Using [Hex](https://hex.pm), the package can be installed by adding `exogiri` to
 ```elixir
 def deps do
   [
-    {:exogiri, "~> 0.2.1"}
+    {:exogiri, "~> 0.2.2"}
   ]
 end
 ```

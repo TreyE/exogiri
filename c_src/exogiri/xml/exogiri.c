@@ -59,7 +59,7 @@ static ErlNifFunc nif_funcs[] =
   {"priv_node_run_xpath_with_ns", 3, priv_node_run_xpath_with_ns, ERL_NIF_DIRTY_JOB_CPU_BOUND},
   {"priv_node_unlink", 1, priv_node_unlink, 0},
   {"priv_node_add_child", 2, priv_node_add_child, ERL_NIF_DIRTY_JOB_CPU_BOUND},
-  {"priv_node_content", 1, priv_node_content, 0},
+  {"priv_node_content", 1, priv_node_content, ERL_NIF_DIRTY_JOB_CPU_BOUND},
   {"priv_node_set_content", 2, priv_node_set_content, 0},
   {"priv_node_attribute_value", 2, priv_node_attribute_value, 0},
   {"priv_node_set_attribute_value", 3, priv_node_set_attribute_value, 0},
