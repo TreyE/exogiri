@@ -8,6 +8,8 @@
 #include <libxml/c14n.h>
 #include <libxml/xmlschemas.h>
 
+#include "unlinked_node.h"
+
 ErlNifResourceType* EXD_RES_TYPE;
 ErlNifResourceType* EXN_RES_TYPE;
 ErlNifResourceType* EXS_RES_TYPE;

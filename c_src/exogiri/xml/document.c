@@ -1,7 +1,6 @@
 #include <string.h>
 #include "exogiri.h"
 #include "node.h"
-#include "unlinked_node.h"
 
 void free_document(__attribute__((unused))ErlNifEnv* env, void* obj)
 {

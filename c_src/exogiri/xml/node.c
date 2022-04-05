@@ -2,7 +2,6 @@
 
 #include "exogiri.h"
 #include "namespace.h"
-#include "unlinked_node.h"
 
 void free_node(__attribute__((unused))ErlNifEnv* env, void* obj) {
   Node* node = (Node*)obj;
