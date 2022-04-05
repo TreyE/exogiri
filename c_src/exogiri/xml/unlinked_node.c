@@ -77,3 +77,53 @@ UnlinkedNode* add_unlinked_node(UnlinkedNode *unlinked_nodes, xmlNodePtr node) {
   prev->next = curr;
   return unlinked_nodes;
 }
+
+UnlinkedNs *allocate_new_unlinked_ns() {
+  UnlinkedNs *result;
+
+  result = (UnlinkedNs *)enif_alloc(sizeof(UnlinkedNs));
+  result->next = NULL;
+  result->ns = NULL;
+
+  return result;
+}
+
+UnlinkedNs* pin_unlinked_ns(UnlinkedNs *unlinked_nses, xmlNsPtr ns) {
+  UnlinkedNs *curr;
+  UnlinkedNs *prev;
+  UnlinkedNs *next;
+  if (!unlinked_nses) {
+    curr = allocate_new_unlinked_ns();
+    curr->ns = ns;
+    return curr;
+  }
+  prev = NULL;
+  curr = unlinked_nses;
+  while (NULL != curr) {
+    next = curr->next;
+    if (curr->ns == ns) {
+      return unlinked_nses;
+    }
+    prev = curr;
+    curr = next;
+  }
+  curr = allocate_new_unlinked_ns();
+  curr->ns = ns;
+  prev->next = curr;
+  return unlinked_nses;
+}
+
+void free_unlinked_nses(UnlinkedNs *unlinked_nses) {
+  UnlinkedNs *next;
+  UnlinkedNs *curr;
+  if (!unlinked_nses) {
+    return;
+  }
+  curr = unlinked_nses;
+  while (NULL != curr) {
+    next = curr->next;
+    xmlFreeNs(curr->ns);
+    enif_free(curr);
+    curr = next;
+  }
+}

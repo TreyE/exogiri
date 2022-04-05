@@ -191,7 +191,7 @@ ERL_NIF_TERM priv_node_add_child(ErlNifEnv* env, int argc, const ERL_NIF_TERM ar
     xmlUnlinkNode(c_node->node);
   }
   xmlAddChild(p_node->node, c_node->node);
-  recon_ns_after_move(p_node->doc->doc, c_node->node, 1);
+  recon_ns_after_move(p_node->doc, c_node->node, 1);
   p_node->doc->unlinked_nodes = remove_unlinked_node(p_node->doc->unlinked_nodes, c_node->node);
   c_node->doc = p_node->doc;
   enif_keep_resource(p_node->doc);
@@ -574,7 +574,7 @@ ERL_NIF_TERM priv_node_add_next_sibling(ErlNifEnv* env, int argc, const ERL_NIF_
     ASSIGN_ERROR(env, atom_result);
     return atom_result;
   }
-  recon_ns_after_move(p_node->doc->doc, new_node, 1);
+  recon_ns_after_move(p_node->doc, new_node, 1);
   p_node->doc->unlinked_nodes = remove_unlinked_node(p_node->doc->unlinked_nodes, s_node->node);
   xmlFreeNode(s_node->node);
   s_node->node = new_node;
@@ -621,7 +621,7 @@ ERL_NIF_TERM priv_node_add_previous_sibling(ErlNifEnv* env, int argc, const ERL_
     ASSIGN_ERROR(env, atom_result);
     return atom_result;
   }
-  recon_ns_after_move(p_node->doc->doc, new_node, 1);
+  recon_ns_after_move(p_node->doc, new_node, 1);
   p_node->doc->unlinked_nodes = remove_unlinked_node(p_node->doc->unlinked_nodes, s_node->node);
   xmlFreeNode(s_node->node);
   s_node->node = new_node;

@@ -18,6 +18,7 @@ typedef struct {
   ErlNifPid* owner;
   xmlDocPtr doc;
   struct UnlinkedNode *unlinked_nodes;
+  struct UnlinkedNs *unlinked_nses;
 } Document;
 
 typedef struct {

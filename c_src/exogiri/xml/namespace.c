@@ -3,7 +3,7 @@
 /*
  * Stolen wholesale from Nokogiri.
  */
-void recon_ns_after_move(xmlDocPtr doc, xmlNodePtr tree, int recon_ns) {
+void recon_ns_after_move(Document* doc, xmlNodePtr tree, int recon_ns) {
   xmlNodePtr child;
   xmlAttrPtr attr;
   xmlNsPtr possible_collision_ns;
@@ -25,7 +25,7 @@ void recon_ns_after_move(xmlDocPtr doc, xmlNodePtr tree, int recon_ns) {
 
     while (curr) {
       xmlNsPtr ns = xmlSearchNsByHref(
-                      doc,
+                      tree->doc,
                       tree->parent,
                       curr->href
                     );
@@ -44,13 +44,16 @@ void recon_ns_after_move(xmlDocPtr doc, xmlNodePtr tree, int recon_ns) {
         } else {
           tree->nsDef = curr->next;
         }
+        // TODO: Pin the namespace for later deletion
+        doc->unlinked_nses = pin_unlinked_ns(doc->unlinked_nses, curr);
+        // pin_namespace()
       } else {
         prev = curr;
       }
       curr = curr->next;
     }
   }
-  xmlNsPtr ns = xmlSearchNs(doc, tree, tree->ns->prefix);
+  xmlNsPtr ns = xmlSearchNs(tree->doc, tree, tree->ns->prefix);
   if (ns
       && ns != tree->ns
       && xmlStrEqual(ns->prefix, tree->ns->prefix)

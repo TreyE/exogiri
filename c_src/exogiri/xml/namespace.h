@@ -2,4 +2,4 @@
 
 #include "exogiri.h"
 
-void recon_ns_after_move(xmlDocPtr doc, xmlNodePtr tree, int depth);
+void recon_ns_after_move(Document *doc, xmlNodePtr tree, int depth);
