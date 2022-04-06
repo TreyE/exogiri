@@ -1,18 +1,15 @@
 defmodule Exogiri do
   @moduledoc """
-  Documentation for `Exogiri`.
+  Top level for Exogiri functionality.
+
+  Most of your helpers for easy usage of this library can be found here.
   """
 
   @doc """
-  Hello world.
-
-  ## Examples
-
-      iex> Exogiri.hello()
-      :world
-
+  Read a string as an XML document.
   """
-  def hello do
-    :world
+  @spec xml(String.t) :: {:error, :parse_failed | [binary]} | {:ok, Exogiri.Xml.Document.t()}
+  def xml(string) do
+    Exogiri.Xml.Document.from_string(string)
   end
 end

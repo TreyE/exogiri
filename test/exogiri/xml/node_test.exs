@@ -78,7 +78,6 @@ defmodule Exogiri.Xml.NodeTest do
     {:ok, [child2]} = Exogiri.Xml.Node.xpath(root,"//ns:child2",%{"ns" => "urn:something"})
     "THE CONTENT" = Exogiri.Xml.Node.content(child2)
     :ok = Exogiri.Xml.Node.set_content(node, "THE NEW CONTENT<")
-    IO.inspect Exogiri.Xml.Document.to_xml(a)
     "THE NEW CONTENT<" = Exogiri.Xml.Node.content(node)
     "THE CONTENT" = Exogiri.Xml.Node.content(child2)
   end
