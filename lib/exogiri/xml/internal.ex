@@ -33,4 +33,6 @@ defmodule Exogiri.Xml.Internal do
 
   defnif priv_doc_new_root_no_ns(root_name)
   defnif priv_doc_new_root_with_ns(root_name, root_abbrev, root_href)
+
+  defnif priv_stylesheet_from_string(string)
 end

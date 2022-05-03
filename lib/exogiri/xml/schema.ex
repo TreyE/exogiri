@@ -15,7 +15,7 @@ defmodule Exogiri.Xml.Schema do
   included or imported schemas, if either is local.
   """
   @spec from_string(String.t) :: {:error, :unknown_error | [String.t]} | {:ok, t}
-  def from_string(string) do
+  def from_string(string) when is_binary(string) do
     case Exogiri.Xml.Internal.priv_schema_from_string(string) do
       {:error, :unknown_error} -> {:error, :unknown_error}
       {:error, errs} -> {:error, format_errors(errs)}
@@ -33,7 +33,7 @@ defmodule Exogiri.Xml.Schema do
   references.
   """
   @spec from_string(String.t, String.t) :: {:error, :unknown_error | [String.t]} | {:ok, t}
-  def from_string(string, path) do
+  def from_string(string, path) when is_binary(string) and is_binary(path) do
     case Exogiri.Xml.Internal.priv_schema_from_string_with_path(string, path) do
       {:error, :unknown_error} -> {:error, :unknown_error}
       {:error, errs} -> {:error, format_errors(errs)}

@@ -7,12 +7,15 @@
 #include <libxml/xpathInternals.h>
 #include <libxml/c14n.h>
 #include <libxml/xmlschemas.h>
+#include <libxslt/xsltInternals.h>
+#include <libxslt/xsltutils.h>
 
 #include "unlinked_node.h"
 
 ErlNifResourceType* EXD_RES_TYPE;
 ErlNifResourceType* EXN_RES_TYPE;
 ErlNifResourceType* EXS_RES_TYPE;
+ErlNifResourceType* EXSS_RES_TYPE;
 
 typedef struct {
   ErlNifPid* owner;
@@ -38,6 +41,11 @@ typedef struct {
   xmlSchemaPtr schema;
   xmlDocPtr doc;
 } Schema;
+
+typedef struct {
+  ErlNifPid* owner;
+  xsltStylesheetPtr stylesheet;
+} Stylesheet;
 
 void Exogiri_error_array_pusher(void *ctx, xmlErrorPtr error);
 xmlChar *nif_binary_to_xmlChar(ErlNifBinary * bin);

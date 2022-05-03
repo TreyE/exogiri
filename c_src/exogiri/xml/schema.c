@@ -3,6 +3,7 @@
 void free_schema(__attribute__((unused))ErlNifEnv* env, void* obj) {
   Schema* schema = (Schema*)obj;
   xmlSchemaFree(schema->schema);
+  enif_free(schema->owner);
   if (schema->doc) {
     xmlFreeDoc(schema->doc);
   }
