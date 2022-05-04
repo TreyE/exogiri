@@ -43,7 +43,7 @@ defmodule Exogiri.Xml.Stylesheet do
       [],
       fn({k,v}, acc) ->
         clean_k = to_string(k)
-        clean_v = case String.match?(v, ~r/'/) do
+        clean_v = case String.match?(to_string(v), ~r/'/) do
           true ->
             concat_values = String.replace(
               to_string(v),

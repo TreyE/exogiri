@@ -88,7 +88,6 @@ static ERL_NIF_TERM read_stylesheet_from_doc(ErlNifEnv* env, xmlDocPtr doc) {
   
   enif_free(parse_errors);
 
-
   Stylesheet* ssRes = (Stylesheet *)enif_alloc_resource(EXSS_RES_TYPE, sizeof(Stylesheet));
   ssRes->owner = self;
   ssRes->stylesheet = ss;
@@ -170,6 +169,63 @@ ERL_NIF_TERM priv_stylesheet_from_string(ErlNifEnv* env, int argc, const ERL_NIF
   return read_stylesheet_from_doc(env, doc);
 }
 
+static void free_params_array(char **p_array) {
+  char *cur_ptr;
+
+  if (!p_array) {
+    return;
+  }
+
+  int i = 0;
+  cur_ptr = p_array[i];
+
+  while(cur_ptr != NULL) {
+    enif_free(cur_ptr);
+    i++;
+    cur_ptr = p_array[i];
+  }
+
+  enif_free(p_array);
+}
+
+static char **extract_transform_params(ErlNifEnv* env, ERL_NIF_TERM param_list, unsigned int list_size) {
+  char **transform_params;
+  ERL_NIF_TERM head;
+  ERL_NIF_TERM tail;
+  ERL_NIF_TERM tail2;
+  ERL_NIF_TERM current;
+  ErlNifBinary kb;
+  ErlNifBinary vb;
+  char *kc;
+  char *vc;
+  size_t allocated_size;
+
+  if (list_size < 1) {
+    return NULL;
+  }
+
+  allocated_size = (sizeof(char *) * list_size) + 1;
+
+  transform_params = enif_alloc(allocated_size);
+  transform_params[list_size] = NULL;
+
+  current = param_list;
+
+  for (unsigned int i = 0; i < list_size; i = i + 2) {
+    enif_get_list_cell(env, current, &head, &tail);
+    enif_inspect_binary(env, head, &kb);
+    kc = nif_binary_to_char(&kb);
+    enif_get_list_cell(env, tail, &head, &tail2);
+    enif_inspect_binary(env, head, &vb);
+    vc = nif_binary_to_char(&vb);
+    transform_params[i] = kc;
+    transform_params[i + 1] = vc;
+    current = tail2;
+  }
+
+  return transform_params;
+}
+
 ERL_NIF_TERM priv_stylesheet_transform(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[]) {
   ERL_NIF_TERM atom_result;
   ERL_NIF_TERM pf_atom;
@@ -180,7 +236,9 @@ ERL_NIF_TERM priv_stylesheet_transform(ErlNifEnv* env, int argc, const ERL_NIF_T
   ErlNifPid self;
   ErlNifPid *doc_owner;
   Errors *parse_errors;
+  char **transform_params;
   unsigned int err_len;
+  unsigned int param_len;
 
   if(argc != 3)
   {
@@ -192,6 +250,9 @@ ERL_NIF_TERM priv_stylesheet_transform(ErlNifEnv* env, int argc, const ERL_NIF_T
   if (!enif_get_resource(env, argv[1],EXD_RES_TYPE,(void **)&document)) {
     return enif_make_badarg(env);
   }
+  if (!enif_is_list(env, argv[2])) {
+    return enif_make_badarg(env);
+  }
 
   CHECK_STRUCT_OWNER(env, self, s_sheet)
   CHECK_STRUCT_OWNER(env, self, document)
@@ -200,11 +261,16 @@ ERL_NIF_TERM priv_stylesheet_transform(ErlNifEnv* env, int argc, const ERL_NIF_T
   parse_errors->env = env;
   parse_errors->errors = enif_make_list(env, 0);
 
+  enif_get_list_length(env, argv[2], &param_len);
+  transform_params = extract_transform_params(env, argv[2],param_len);
+
   xsltSetGenericErrorFunc((void *)parse_errors, xslt_generic_error_handler);
   xmlSetGenericErrorFunc((void *)parse_errors, xslt_generic_error_handler);
-  result_doc = xsltApplyStylesheet(s_sheet->stylesheet, document->doc, NULL);;
+  result_doc = xsltApplyStylesheet(s_sheet->stylesheet, document->doc, (const char **)transform_params);;
   xsltSetGenericErrorFunc(NULL, NULL);
   xmlSetGenericErrorFunc(NULL, NULL);
+
+  free_params_array(transform_params);
 
   enif_get_list_length(env,parse_errors->errors,&err_len);
   if (err_len > 0) {

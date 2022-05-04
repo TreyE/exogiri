@@ -2,6 +2,16 @@
 #include <libxml/tree.h>
 #include <string.h>
 
+char *nif_binary_to_char(ErlNifBinary * bin) {
+  char* result;
+  int bin_size;
+  bin_size = bin->size + 1;
+  result = (char*)enif_alloc(bin_size);
+  memset(result, 0, bin_size);
+  memcpy(result, bin->data, bin->size);
+  return result;
+}
+
 xmlChar *nif_binary_to_xmlChar(ErlNifBinary * bin) {
   xmlChar* result;
   int bin_size;

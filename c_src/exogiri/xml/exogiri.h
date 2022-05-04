@@ -49,6 +49,7 @@ typedef struct {
 } Stylesheet;
 
 void Exogiri_error_array_pusher(void *ctx, xmlErrorPtr error);
+char *nif_binary_to_char(ErlNifBinary * bin);
 xmlChar *nif_binary_to_xmlChar(ErlNifBinary * bin);
 ERL_NIF_TERM xml_char_to_binary_term(ErlNifEnv* env, xmlChar *content);
 
