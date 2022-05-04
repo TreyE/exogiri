@@ -27,6 +27,11 @@ defmodule Exogiri.Xml.Stylesheet do
      |> Enum.map(fn x -> to_string(x) end)
   end
 
+  @doc """
+  Transform a document using this stylesheet and an optional set of parameters.
+  """
+  @spec transform(Exogiri.Xml.Stylesheet.t(), Exogiri.Xml.Document.t(), map) ::
+          {:error, :transform_failed | [binary]} | {:ok, Exogiri.Xml.Document.t()}
   def transform(%__MODULE__{ref: ss_ref}, %Exogiri.Xml.Document{ref: doc_ref}, params \\ %{}) when is_map(params) do
     clean_params = escape_params(params)
     case Exogiri.Xml.Internal.priv_stylesheet_transform(ss_ref, doc_ref, clean_params) do
