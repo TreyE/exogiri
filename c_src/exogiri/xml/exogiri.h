@@ -9,6 +9,7 @@
 #include <libxml/xmlschemas.h>
 #include <libxslt/xsltInternals.h>
 #include <libxslt/xsltutils.h>
+#include <libxslt/transform.h>
 
 #include "unlinked_node.h"
 

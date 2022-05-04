@@ -82,6 +82,7 @@ static ErlNifFunc nif_funcs[] =
   {"priv_schema_from_string_with_path", 2, priv_schema_from_string_with_path, ERL_NIF_DIRTY_JOB_CPU_BOUND},
   {"priv_schema_validate_doc", 2, priv_schema_validate_doc, ERL_NIF_DIRTY_JOB_CPU_BOUND},
   {"priv_stylesheet_from_string", 1, priv_stylesheet_from_string, ERL_NIF_DIRTY_JOB_CPU_BOUND},
+  {"priv_stylesheet_transform", 3, priv_stylesheet_transform, ERL_NIF_DIRTY_JOB_CPU_BOUND},
   {"priv_doc_new_root_no_ns", 1, priv_doc_new_root_no_ns, 0},
   {"priv_doc_new_root_with_ns", 3, priv_doc_new_root_with_ns, 0}
 };
