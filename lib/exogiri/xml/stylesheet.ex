@@ -20,13 +20,6 @@ defmodule Exogiri.Xml.Stylesheet do
     end
   end
 
-  @spec format_errors([any()]) :: [String.t]
-  defp format_errors(errs) do
-    errs
-     |> Enum.reverse()
-     |> Enum.map(fn x -> to_string(x) end)
-  end
-
   @doc """
   Transform a document using this stylesheet and an optional set of parameters.
   """
@@ -62,5 +55,12 @@ defmodule Exogiri.Xml.Stylesheet do
         [clean_k,clean_v|acc]
       end
     )
+  end
+
+  @spec format_errors([any()]) :: [String.t]
+  defp format_errors(errs) do
+    errs
+     |> Enum.reverse()
+     |> Enum.map(fn x -> to_string(x) end)
   end
 end

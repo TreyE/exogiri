@@ -23,7 +23,7 @@ defmodule Exogiri.Xml.Node do
   end
 
   @doc """
-  Create a new node with no namespace.
+  Create a new node with a namespace.
   """
   @spec new_with_ns(Exogiri.Xml.Document.t(), String.t, nil | String.t, String.t) :: t()
   def new_with_ns(%Exogiri.Xml.Document{} = doc, node_name, nil, ns_href) when
